@@ -1,0 +1,13 @@
+# .NET build output
+bin/
+obj/
+
+# Editor / OS files
+.vs/
+.vscode/
+.idea/
+*.user
+.DS_Store
+
+# Teacher-only answer keys: keep these on the teacher's computer only
+answer-key/

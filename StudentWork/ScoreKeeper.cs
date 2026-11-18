@@ -1,0 +1,247 @@
+// =====================================================================
+//  SORTLE  -  ScoreKeeper.cs
+//  OWNER: Student B
+// =====================================================================
+//
+//  This file runs the RULES of the game: the clock, the levels, and how
+//  well the player is doing. It doesn't know anything about sorting.
+//  It only hears "the player got it right" or "the player got it wrong".
+//
+//  THE GAME RULES (from our design)
+//  --------------------------------
+//  * The player starts with 60 seconds on the clock.
+//  * The clock slowly runs down. When it reaches 0, the game is over.
+//  * There are 5 levels. Each level has 5 problems to solve before
+//    moving on to the next level.
+//  * Bigger levels mean longer lists:
+//
+//      Level | List length | Correct answer | Wrong answer
+//      ------+-------------+----------------+-------------
+//        1   |   3 - 5     |   +5 seconds   |  -5 seconds
+//        2   |   7 - 10    |  +10 seconds   |  -5 seconds
+//        3   |  10 - 15    |  +15 seconds   |  -7 seconds
+//        4   |  15 - 20    |  +20 seconds   |  -7 seconds
+//        5   |  20 - 25    |  +25 seconds   |  -7 seconds
+//
+//  * A wrong answer gives a time penalty and a NEW problem, but it does
+//    NOT count toward the 5 problems for the level.
+//  * Mastery = how many levels the player cleared before time ran out
+//    (or before they beat level 5).
+//
+//  WHAT TO DO
+//  ----------
+//  Do the steps IN ORDER (1 -> 5). Each step has a method with a
+//  "throw new NotImplementedException(...)" line. Delete that line and
+//  write your own code in its place.
+//
+//  After each step, check your work by running this in the terminal:
+//
+//      dotnet run -- check score
+//
+//  [PASS] means the step works. [FAIL] tells you what went wrong.
+//  [TODO] means you haven't started that step yet.
+//
+//  RULES
+//  -----
+//  * Only change the code INSIDE the method bodies { ... }.
+//  * Do NOT change method names, parameters, return types, or the
+//    properties/constants at the top. The rest of the game (and the
+//    website later on) uses them by name.
+//
+// =====================================================================
+
+namespace Sortle;
+
+public class ScoreKeeper
+{
+    // ===== GAME SETTINGS (already done for you, don't change) =====
+    public const double StartingTime = 60;   // seconds on the clock at the start
+    public const int ProblemsPerLevel = 5;   // problems to solve before levelling up
+    public const int MaxLevel = 5;           // the last level
+
+    // ===== GAME STATE (already done for you, don't change) =====
+    // These are "properties". Anyone can READ them (get), but only code
+    // inside THIS class can CHANGE them (private set). Your methods below
+    // are inside this class, so you can change them like normal variables:
+    //     TimeLeft = TimeLeft + 5;
+    //     TotalCorrect++;
+
+    public double TimeLeft { get; private set; }              // seconds left on the clock
+    public int CurrentLevel { get; private set; }             // 1 to 5
+    public int ProblemsSolvedThisLevel { get; private set; }  // 0 to 4 (resets on level up)
+    public int TotalCorrect { get; private set; }             // correct answers in the whole game
+    public int TotalWrong { get; private set; }               // wrong answers in the whole game
+    public int LevelsCleared { get; private set; }            // 0 to 5
+    public bool IsGameOver { get; private set; }              // true once the game has ended
+    public bool HasWonGame { get; private set; }              // true only if level 5 is cleared
+
+    // The "constructor". It runs once when a new game starts:  new ScoreKeeper()
+    public ScoreKeeper()
+    {
+        TimeLeft = StartingTime;
+        CurrentLevel = 1;
+        ProblemsSolvedThisLevel = 0;
+        TotalCorrect = 0;
+        TotalWrong = 0;
+        LevelsCleared = 0;
+        IsGameOver = false;
+        HasWonGame = false;
+    }
+
+
+    // -----------------------------------------------------------------
+    //  STEP 1: How long is the list for each level?
+    // -----------------------------------------------------------------
+    //  Use the "List length" column of the table above.
+    //  GetMinLength returns the SHORTEST list for that level.
+    //  GetMaxLength returns the LONGEST list for that level.
+    //  For any level that isn't 1-5, return 0.
+    //
+    //  Examples:  GetMinLength(1) -> 3     GetMaxLength(1) -> 5
+    //             GetMinLength(4) -> 15    GetMaxLength(4) -> 20
+    //             GetMinLength(9) -> 0
+    //
+    //  HINTS
+    //  * A chain of if / else if works.
+    //  * A `switch` is neater:
+    //        switch (level)
+    //        {
+    //            case 1: return 3;
+    //            case 2: return ...;
+    //            default: return 0;
+    //        }
+    // -----------------------------------------------------------------
+    public int GetMinLength(int level)
+    {
+        // TODO (Step 1): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 1: GetMinLength");
+    }
+
+    public int GetMaxLength(int level)
+    {
+        // TODO (Step 1): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 1: GetMaxLength");
+    }
+
+
+    // -----------------------------------------------------------------
+    //  STEP 2: Time rewards and penalties
+    // -----------------------------------------------------------------
+    //  GetTimeBonus: seconds ADDED for a correct answer at that level.
+    //  GetTimePenalty: seconds TAKEN AWAY for a wrong answer at that level.
+    //  Return positive numbers from both (the penalty for level 1 is 5, not -5).
+    //  For any level that isn't 1-5, return 0.
+    //
+    //  Examples:  GetTimeBonus(2) -> 10      GetTimePenalty(2) -> 5
+    //             GetTimeBonus(5) -> 25      GetTimePenalty(5) -> 7
+    //
+    //  HINTS
+    //  * Look at the bonus column: 5, 10, 15, 20, 25. Do you see a pattern?
+    //    You might not need a switch at all.
+    //    (Still return 0 for levels outside 1-5.)
+    //  * The penalty has only two values. Which levels get 5, and which get 7?
+    // -----------------------------------------------------------------
+    public int GetTimeBonus(int level)
+    {
+        // TODO (Step 2): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 2: GetTimeBonus");
+    }
+
+    public int GetTimePenalty(int level)
+    {
+        // TODO (Step 2): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 2: GetTimePenalty");
+    }
+
+
+    // -----------------------------------------------------------------
+    //  STEP 3: Make the clock tick
+    // -----------------------------------------------------------------
+    //  The game calls this to say "this many seconds have passed".
+    //  Take `seconds` away from TimeLeft.
+    //
+    //  * If TimeLeft drops to 0 or below, set TimeLeft to exactly 0
+    //    (no negative time!) and set IsGameOver to true.
+    //  * If the game is ALREADY over, do nothing at all.
+    //
+    //  Examples:  TimeLeft = 60, Tick(10)   -> TimeLeft = 50
+    //             TimeLeft = 50, Tick(80)   -> TimeLeft = 0, IsGameOver = true
+    //
+    //  HINTS
+    //  * "Do nothing" can be written as an early exit at the top:
+    //        if (IsGameOver) { return; }
+    // -----------------------------------------------------------------
+    public void Tick(double seconds)
+    {
+        // TODO (Step 3): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 3: Tick");
+    }
+
+
+    // -----------------------------------------------------------------
+    //  STEP 4: The player answered a problem  (THE MAIN ONE!)
+    // -----------------------------------------------------------------
+    //  The game calls this after every guess. isCorrect tells you whether
+    //  the player guessed the right number of swaps.
+    //
+    //  If the game is already over, do nothing.
+    //
+    //  If the answer is CORRECT:
+    //    1. Add the time bonus for the CURRENT level to TimeLeft.
+    //    2. Add 1 to TotalCorrect and 1 to ProblemsSolvedThisLevel.
+    //    3. If ProblemsSolvedThisLevel has reached ProblemsPerLevel (5),
+    //       the level is cleared:
+    //         - add 1 to LevelsCleared
+    //         - if this was the LAST level (MaxLevel): the player has won!
+    //           Set HasWonGame = true and IsGameOver = true.
+    //         - otherwise: go up to the next level and reset
+    //           ProblemsSolvedThisLevel back to 0.
+    //
+    //  If the answer is WRONG:
+    //    1. Add 1 to TotalWrong.
+    //    2. Take the time penalty for the CURRENT level away from TimeLeft.
+    //       If that makes the clock hit 0, the game is over (same rules
+    //       as Step 3).
+    //    ProblemsSolvedThisLevel does NOT change.
+    //
+    //  HINTS
+    //  * Use the methods you already wrote:  GetTimeBonus(CurrentLevel)
+    //  * For the wrong-answer penalty, could you just call Tick(...)?
+    //    It already handles "don't go below 0" and "game over".
+    //  * Work through this on paper: start a new game, answer correctly
+    //    5 times. What should CurrentLevel, ProblemsSolvedThisLevel,
+    //    LevelsCleared and TimeLeft be now? (Answer: 2, 0, 1, 85)
+    // -----------------------------------------------------------------
+    public void SubmitAnswer(bool isCorrect)
+    {
+        // TODO (Step 4): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 4: SubmitAnswer");
+    }
+
+
+    // -----------------------------------------------------------------
+    //  STEP 5: Mastery rating
+    // -----------------------------------------------------------------
+    //  Shown at the end of the game. Return a title based on LevelsCleared.
+    //  Use EXACTLY these words (the checker compares the text):
+    //
+    //      LevelsCleared | Title
+    //      --------------+----------------------
+    //            0       | "Not Yet Sorted"
+    //            1       | "Bubble Beginner"
+    //            2       | "Swap Apprentice"
+    //            3       | "Sorting Student"
+    //            4       | "Bubble Expert"
+    //            5       | "Bubble Sort Master"
+    //
+    //  HINTS
+    //  * A switch on LevelsCleared, like in Step 1.
+    //  * Every path through the method must return something. What will
+    //    you return in the `default:` case?
+    // -----------------------------------------------------------------
+    public string GetMasteryRating()
+    {
+        // TODO (Step 5): delete the line below and write your code.
+        throw new NotImplementedException("ScoreKeeper Step 5: GetMasteryRating");
+    }
+}
