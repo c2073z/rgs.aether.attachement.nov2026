@@ -162,6 +162,10 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public int GetTimeBonus(int level)
     {
+        if (CurrentLevel < 1 || CurrentLevel > 5)
+        {
+            return 0;
+        }
         return level * 5;
     }
 
