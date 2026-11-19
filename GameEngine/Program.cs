@@ -61,7 +61,7 @@ public static class Program
             int correctAnswer = BubbleSorter.CountSwaps(puzzle);
 
             Console.WriteLine();
-            Console.WriteLine($"=== Level {level}  |  Problem {score.ProblemsSolvedThisLevel + 1} of {ScoreKeeper.ProblemsPerLevel}  |  Time left: {score.TimeLeft:0.0}s ===");
+            Console.WriteLine($"=== Level {level} of {ScoreKeeper.MaxLevel}  |  Correct {score.ProblemsSolvedThisLevel}/{ScoreKeeper.ProblemsPerLevel}  |  Mistakes {score.WrongThisLevel}/{ScoreKeeper.MaxWrongPerLevel}  |  Time left: {score.TimeLeft:0.0}s ===");
             Console.WriteLine($"  {FormatList(puzzle)}");
             Console.Write("How many swaps will bubble sort make? > ");
 
@@ -93,7 +93,15 @@ public static class Program
             if (score.HasWonGame)
             {
                 Console.WriteLine();
-                Console.WriteLine("*** You cleared all 5 levels! ***");
+                Console.WriteLine($"*** You cleared all {ScoreKeeper.MaxLevel} levels! ***");
+            }
+            else if (score.IsGameOver && score.TimeLeft <= 0)
+            {
+                Console.WriteLine("Time's up!");
+            }
+            else if (score.IsGameOver)
+            {
+                Console.WriteLine($"That's {ScoreKeeper.MaxWrongPerLevel} mistakes in this level. Game over!");
             }
             else if (score.CurrentLevel > level)
             {
@@ -165,6 +173,8 @@ public static class Program
         Console.WriteLine("sort each list from smallest to biggest.");
         Console.WriteLine($"You start with {ScoreKeeper.StartingTime:0} seconds. Right answers add");
         Console.WriteLine("time, wrong answers take it away.");
+        Console.WriteLine($"Get {ScoreKeeper.ProblemsPerLevel} right to pass a level. {ScoreKeeper.MaxWrongPerLevel} mistakes in one level");
+        Console.WriteLine($"ends the game. Can you clear all {ScoreKeeper.MaxLevel} levels?");
         Console.WriteLine("Press Enter to start...");
         Console.ReadLine();
     }

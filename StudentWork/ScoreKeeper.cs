@@ -11,8 +11,8 @@
 //  --------------------------------
 //  * The player starts with 60 seconds on the clock.
 //  * The clock slowly runs down. When it reaches 0, the game is over.
-//  * There are 5 levels. Each level has 5 problems to solve before
-//    moving on to the next level.
+//  * There are 4 levels. The player must get 5 problems CORRECT in a
+//    level to move on to the next level.
 //  * Bigger levels mean longer lists:
 //
 //      Level | List length | Correct answer | Wrong answer
@@ -21,12 +21,14 @@
 //        2   |   7 - 10    |  +10 seconds   |  -5 seconds
 //        3   |  10 - 15    |  +15 seconds   |  -7 seconds
 //        4   |  15 - 20    |  +20 seconds   |  -7 seconds
-//        5   |  20 - 25    |  +25 seconds   |  -7 seconds
 //
 //  * A wrong answer gives a time penalty and a NEW problem, but it does
-//    NOT count toward the 5 problems for the level.
-//  * Mastery = how many levels the player cleared before time ran out
-//    (or before they beat level 5).
+//    NOT count toward the 5 correct problems for the level.
+//  * 5 WRONG answers in the same level = game over, even if there is
+//    still time on the clock. The wrong count starts again at 0 on each
+//    new level.
+//  * Mastery = how many levels the player cleared before the game ended
+//    (or before they beat level 4).
 //
 //  WHAT TO DO
 //  ----------
@@ -56,8 +58,9 @@ public class ScoreKeeper
 {
     // ===== GAME SETTINGS (already done for you, don't change) =====
     public const double StartingTime = 60;   // seconds on the clock at the start
-    public const int ProblemsPerLevel = 5;   // problems to solve before levelling up
-    public const int MaxLevel = 5;           // the last level
+    public const int ProblemsPerLevel = 5;   // correct answers needed to level up
+    public const int MaxWrongPerLevel = 5;   // wrong answers in one level that end the game
+    public const int MaxLevel = 4;           // the last level
 
     // ===== GAME STATE (already done for you, don't change) =====
     // These are "properties". Anyone can READ them (get), but only code
@@ -67,13 +70,14 @@ public class ScoreKeeper
     //     TotalCorrect++;
 
     public double TimeLeft { get; private set; }              // seconds left on the clock
-    public int CurrentLevel { get; private set; }             // 1 to 5
-    public int ProblemsSolvedThisLevel { get; private set; }  // 0 to 4 (resets on level up)
+    public int CurrentLevel { get; private set; }             // 1 to 4
+    public int ProblemsSolvedThisLevel { get; private set; }  // correct answers this level (resets on level up)
+    public int WrongThisLevel { get; private set; }           // wrong answers this level (resets on level up)
     public int TotalCorrect { get; private set; }             // correct answers in the whole game
     public int TotalWrong { get; private set; }               // wrong answers in the whole game
-    public int LevelsCleared { get; private set; }            // 0 to 5
+    public int LevelsCleared { get; private set; }            // 0 to 4
     public bool IsGameOver { get; private set; }              // true once the game has ended
-    public bool HasWonGame { get; private set; }              // true only if level 5 is cleared
+    public bool HasWonGame { get; private set; }              // true only if level 4 is cleared
 
     // The "constructor". It runs once when a new game starts:  new ScoreKeeper()
     public ScoreKeeper()
@@ -81,6 +85,7 @@ public class ScoreKeeper
         TimeLeft = StartingTime;
         CurrentLevel = 1;
         ProblemsSolvedThisLevel = 0;
+        WrongThisLevel = 0;
         TotalCorrect = 0;
         TotalWrong = 0;
         LevelsCleared = 0;
@@ -95,11 +100,11 @@ public class ScoreKeeper
     //  Use the "List length" column of the table above.
     //  GetMinLength returns the SHORTEST list for that level.
     //  GetMaxLength returns the LONGEST list for that level.
-    //  For any level that isn't 1-5, return 0.
+    //  For any level that isn't 1-4, return 0.
     //
     //  Examples:  GetMinLength(1) -> 3     GetMaxLength(1) -> 5
     //             GetMinLength(4) -> 15    GetMaxLength(4) -> 20
-    //             GetMinLength(9) -> 0
+    //             GetMinLength(5) -> 0     (there is no level 5)
     //
     //  HINTS
     //  * A chain of if / else if works.
@@ -130,15 +135,15 @@ public class ScoreKeeper
     //  GetTimeBonus: seconds ADDED for a correct answer at that level.
     //  GetTimePenalty: seconds TAKEN AWAY for a wrong answer at that level.
     //  Return positive numbers from both (the penalty for level 1 is 5, not -5).
-    //  For any level that isn't 1-5, return 0.
+    //  For any level that isn't 1-4, return 0.
     //
     //  Examples:  GetTimeBonus(2) -> 10      GetTimePenalty(2) -> 5
-    //             GetTimeBonus(5) -> 25      GetTimePenalty(5) -> 7
+    //             GetTimeBonus(4) -> 20      GetTimePenalty(4) -> 7
     //
     //  HINTS
-    //  * Look at the bonus column: 5, 10, 15, 20, 25. Do you see a pattern?
+    //  * Look at the bonus column: 5, 10, 15, 20. Do you see a pattern?
     //    You might not need a switch at all.
-    //    (Still return 0 for levels outside 1-5.)
+    //    (Still return 0 for levels outside 1-4.)
     //  * The penalty has only two values. Which levels get 5, and which get 7?
     // -----------------------------------------------------------------
     public int GetTimeBonus(int level)
@@ -194,14 +199,16 @@ public class ScoreKeeper
     //         - add 1 to LevelsCleared
     //         - if this was the LAST level (MaxLevel): the player has won!
     //           Set HasWonGame = true and IsGameOver = true.
-    //         - otherwise: go up to the next level and reset
-    //           ProblemsSolvedThisLevel back to 0.
+    //         - otherwise: go up to the next level and reset BOTH
+    //           ProblemsSolvedThisLevel and WrongThisLevel back to 0.
     //
     //  If the answer is WRONG:
-    //    1. Add 1 to TotalWrong.
+    //    1. Add 1 to TotalWrong and 1 to WrongThisLevel.
     //    2. Take the time penalty for the CURRENT level away from TimeLeft.
     //       If that makes the clock hit 0, the game is over (same rules
     //       as Step 3).
+    //    3. If WrongThisLevel has reached MaxWrongPerLevel (5), the game
+    //       is over (IsGameOver = true), even if there is time left.
     //    ProblemsSolvedThisLevel does NOT change.
     //
     //  HINTS
@@ -211,6 +218,8 @@ public class ScoreKeeper
     //  * Work through this on paper: start a new game, answer correctly
     //    5 times. What should CurrentLevel, ProblemsSolvedThisLevel,
     //    LevelsCleared and TimeLeft be now? (Answer: 2, 0, 1, 85)
+    //  * And: new game, answer WRONG 5 times. TimeLeft should be 35 and
+    //    IsGameOver should be true (5 mistakes, not the clock).
     // -----------------------------------------------------------------
     public void SubmitAnswer(bool isCorrect)
     {
@@ -230,9 +239,8 @@ public class ScoreKeeper
     //            0       | "Not Yet Sorted"
     //            1       | "Bubble Beginner"
     //            2       | "Swap Apprentice"
-    //            3       | "Sorting Student"
-    //            4       | "Bubble Expert"
-    //            5       | "Bubble Sort Master"
+    //            3       | "Bubble Expert"
+    //            4       | "Bubble Sort Master"
     //
     //  HINTS
     //  * A switch on LevelsCleared, like in Step 1.

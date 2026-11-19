@@ -2,7 +2,7 @@
 
 **A game that teaches bubble sort.**
 
-The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Clear all 5 levels before your time runs out.
+The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 5 right to pass a level, but 5 mistakes in one level ends the game. Clear all 4 levels before your time runs out.
 
 You write the main logic of the game yourselves, by hand, in C#. The website version (from our Canva design) gets added later and will use the code you write here.
 

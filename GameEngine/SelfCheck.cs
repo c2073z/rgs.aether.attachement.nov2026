@@ -267,9 +267,9 @@ public static class SelfCheck
         Step("Step 1: GetMinLength / GetMaxLength", () =>
         {
             var s = new ScoreKeeper();
-            int[] mins = { 0, 3, 7, 10, 15, 20, 0 };   // levels 0..6
-            int[] maxs = { 0, 5, 10, 15, 20, 25, 0 };
-            for (int level = 0; level <= 6; level++)
+            int[] mins = { 0, 3, 7, 10, 15, 0 };   // levels 0..5 (only 1-4 are real)
+            int[] maxs = { 0, 5, 10, 15, 20, 0 };
+            for (int level = 0; level <= 5; level++)
             {
                 int min = s.GetMinLength(level);
                 if (min != mins[level])
@@ -288,9 +288,9 @@ public static class SelfCheck
         Step("Step 2: GetTimeBonus / GetTimePenalty", () =>
         {
             var s = new ScoreKeeper();
-            int[] bonus = { 0, 5, 10, 15, 20, 25, 0 };   // levels 0..6
-            int[] penalty = { 0, 5, 5, 7, 7, 7, 0 };
-            for (int level = 0; level <= 6; level++)
+            int[] bonus = { 0, 5, 10, 15, 20, 0 };   // levels 0..5 (only 1-4 are real)
+            int[] penalty = { 0, 5, 5, 7, 7, 0 };
+            for (int level = 0; level <= 5; level++)
             {
                 int b = s.GetTimeBonus(level);
                 if (b != bonus[level])
@@ -352,47 +352,70 @@ public static class SelfCheck
             var s = new ScoreKeeper();
             s.SubmitAnswer(true);
             string? problem = Expect(s, "new game, 1 correct answer",
-                time: 65, level: 1, solved: 1, correct: 1, wrong: 0, cleared: 0, over: false, won: false);
+                time: 65, level: 1, solved: 1, wrongLevel: 0, correct: 1, wrong: 0, cleared: 0, over: false, won: false);
             if (problem != null) return problem;
 
             s.SubmitAnswer(false);
             problem = Expect(s, "new game, 1 correct then 1 wrong",
-                time: 60, level: 1, solved: 1, correct: 1, wrong: 1, cleared: 0, over: false, won: false);
+                time: 60, level: 1, solved: 1, wrongLevel: 1, correct: 1, wrong: 1, cleared: 0, over: false, won: false);
             if (problem != null) return problem;
 
             var t = new ScoreKeeper();
             Answer(t, true, 5);
             problem = Expect(t, "new game, 5 correct answers",
-                time: 85, level: 2, solved: 0, correct: 5, wrong: 0, cleared: 1, over: false, won: false);
+                time: 85, level: 2, solved: 0, wrongLevel: 0, correct: 5, wrong: 0, cleared: 1, over: false, won: false);
             if (problem != null) return problem;
 
             t.SubmitAnswer(false);
             problem = Expect(t, "level 2, then 1 wrong answer (-5s)",
-                time: 80, level: 2, solved: 0, correct: 5, wrong: 1, cleared: 1, over: false, won: false);
+                time: 80, level: 2, solved: 0, wrongLevel: 1, correct: 5, wrong: 1, cleared: 1, over: false, won: false);
             if (problem != null) return problem;
 
             Answer(t, true, 5);
             t.SubmitAnswer(false);
             problem = Expect(t, "clear level 2, then 1 wrong answer at level 3 (-7s)",
-                time: 123, level: 3, solved: 0, correct: 10, wrong: 2, cleared: 2, over: false, won: false);
+                time: 123, level: 3, solved: 0, wrongLevel: 1, correct: 10, wrong: 2, cleared: 2, over: false, won: false);
             if (problem != null) return problem;
 
             var u = new ScoreKeeper();
             u.Tick(57);
             u.SubmitAnswer(false);
             problem = Expect(u, "3 seconds left, then 1 wrong answer",
-                time: 0, level: 1, solved: 0, correct: 0, wrong: 1, cleared: 0, over: true, won: false);
+                time: 0, level: 1, solved: 0, wrongLevel: 1, correct: 0, wrong: 1, cleared: 0, over: true, won: false);
             if (problem != null) return problem;
 
             u.SubmitAnswer(true);
             problem = Expect(u, "answering after the game is over (should change nothing)",
-                time: 0, level: 1, solved: 0, correct: 0, wrong: 1, cleared: 0, over: true, won: false);
+                time: 0, level: 1, solved: 0, wrongLevel: 1, correct: 0, wrong: 1, cleared: 0, over: true, won: false);
+            if (problem != null) return problem;
+
+            var m = new ScoreKeeper();
+            Answer(m, false, 4);
+            problem = Expect(m, "new game, 4 wrong answers (one more allowed)",
+                time: 40, level: 1, solved: 0, wrongLevel: 4, correct: 0, wrong: 4, cleared: 0, over: false, won: false);
+            if (problem != null) return problem;
+
+            m.SubmitAnswer(false);
+            problem = Expect(m, "new game, 5 wrong answers (5 mistakes ends the game)",
+                time: 35, level: 1, solved: 0, wrongLevel: 5, correct: 0, wrong: 5, cleared: 0, over: true, won: false);
+            if (problem != null) return problem;
+
+            var r = new ScoreKeeper();
+            Answer(r, false, 4);
+            Answer(r, true, 5);
+            problem = Expect(r, "4 wrong, then 5 correct (mistakes reset on the new level)",
+                time: 65, level: 2, solved: 0, wrongLevel: 0, correct: 5, wrong: 4, cleared: 1, over: false, won: false);
+            if (problem != null) return problem;
+
+            Answer(r, false, 4);
+            problem = Expect(r, "then 4 wrong at level 2 (still allowed)",
+                time: 45, level: 2, solved: 0, wrongLevel: 4, correct: 5, wrong: 8, cleared: 1, over: false, won: false);
             if (problem != null) return problem;
 
             var w = new ScoreKeeper();
-            Answer(w, true, 25);
-            problem = Expect(w, "new game, 25 correct answers (beat the game)",
-                time: 435, level: 5, solved: 5, correct: 25, wrong: 0, cleared: 5, over: true, won: true);
+            Answer(w, true, 20);
+            problem = Expect(w, "new game, 20 correct answers (beat all 4 levels)",
+                time: 310, level: 4, solved: 5, wrongLevel: 0, correct: 20, wrong: 0, cleared: 4, over: true, won: true);
             if (problem != null) return problem;
 
             return null;
@@ -405,11 +428,10 @@ public static class SelfCheck
                 "Not Yet Sorted",
                 "Bubble Beginner",
                 "Swap Apprentice",
-                "Sorting Student",
                 "Bubble Expert",
                 "Bubble Sort Master",
             };
-            for (int levels = 0; levels <= 5; levels++)
+            for (int levels = 0; levels <= ScoreKeeper.MaxLevel; levels++)
             {
                 var s = new ScoreKeeper();
                 Answer(s, true, levels * ScoreKeeper.ProblemsPerLevel);   // uses Step 4
@@ -471,12 +493,13 @@ public static class SelfCheck
     }
 
     private static string? Expect(ScoreKeeper s, string situation,
-        double time, int level, int solved, int correct, int wrong, int cleared, bool over, bool won)
+        double time, int level, int solved, int wrongLevel, int correct, int wrong, int cleared, bool over, bool won)
     {
         var mismatches = new List<string>();
         if (!Near(s.TimeLeft, time)) mismatches.Add($"TimeLeft is {s.TimeLeft}, expected {time}");
         if (s.CurrentLevel != level) mismatches.Add($"CurrentLevel is {s.CurrentLevel}, expected {level}");
         if (s.ProblemsSolvedThisLevel != solved) mismatches.Add($"ProblemsSolvedThisLevel is {s.ProblemsSolvedThisLevel}, expected {solved}");
+        if (s.WrongThisLevel != wrongLevel) mismatches.Add($"WrongThisLevel is {s.WrongThisLevel}, expected {wrongLevel}");
         if (s.TotalCorrect != correct) mismatches.Add($"TotalCorrect is {s.TotalCorrect}, expected {correct}");
         if (s.TotalWrong != wrong) mismatches.Add($"TotalWrong is {s.TotalWrong}, expected {wrong}");
         if (s.LevelsCleared != cleared) mismatches.Add($"LevelsCleared is {s.LevelsCleared}, expected {cleared}");
