@@ -55,12 +55,12 @@ public static class SelfCheck
     }
 
     // =================================================================
-    //  BubbleSorter.cs  (Student A)
+    //  BubbleSorter.cs  (Yuhan)
     // =================================================================
     private static void CheckBubbleSorter()
     {
         Console.WriteLine();
-        Console.WriteLine("---- BubbleSorter.cs (Student A) ----");
+        Console.WriteLine("---- BubbleSorter.cs (Yuhan) ----");
 
         Step("Step 1: GenerateRandomList", () =>
         {
@@ -257,12 +257,12 @@ public static class SelfCheck
     }
 
     // =================================================================
-    //  ScoreKeeper.cs  (Student B)
+    //  ScoreKeeper.cs  (Siqing)
     // =================================================================
     private static void CheckScoreKeeper()
     {
         Console.WriteLine();
-        Console.WriteLine("---- ScoreKeeper.cs (Student B) ----");
+        Console.WriteLine("---- ScoreKeeper.cs (Siqing) ----");
 
         Step("Step 1: GetMinLength / GetMaxLength", () =>
         {

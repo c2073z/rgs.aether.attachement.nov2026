@@ -1,6 +1,6 @@
 // =====================================================================
 //  SORTLE  -  BubbleSorter.cs
-//  OWNER: Student A
+//  OWNER: Yuhan
 // =====================================================================
 //
 //  This file is the "brain" of the puzzle. It builds the random list the

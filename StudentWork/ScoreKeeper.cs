@@ -1,6 +1,6 @@
 // =====================================================================
 //  SORTLE  -  ScoreKeeper.cs
-//  OWNER: Student B
+//  OWNER: Siqing
 // =====================================================================
 //
 //  This file runs the RULES of the game: the clock, the levels, and how

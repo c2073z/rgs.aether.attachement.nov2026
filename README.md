@@ -12,8 +12,8 @@ You write the main logic of the game yourselves, by hand, in C#. The website ver
 
 | File | Owner | What it does |
 |---|---|---|
-| [`StudentWork/BubbleSorter.cs`](StudentWork/BubbleSorter.cs) | **Student A** | Makes the random list and works out the correct answer: how many swaps bubble sort makes. |
-| [`StudentWork/ScoreKeeper.cs`](StudentWork/ScoreKeeper.cs) | **Student B** | Runs the game rules: the clock, the levels, time bonuses and penalties, and the mastery rating. |
+| [`StudentWork/BubbleSorter.cs`](StudentWork/BubbleSorter.cs) | **Yuhan** | Makes the random list and works out the correct answer: how many swaps bubble sort makes. |
+| [`StudentWork/ScoreKeeper.cs`](StudentWork/ScoreKeeper.cs) | **Siqing** | Runs the game rules: the clock, the levels, time bonuses and penalties, and the mastery rating. |
 | `GameEngine/` | (provided) | The terminal version of the game, plus the checker that tests your code. **You don't need to edit anything in here.** |
 
 Each file has **5 steps**. Do them in order. Every step has a comment above it that explains what to build, gives an example, and has hints.
@@ -38,7 +38,15 @@ Each of you only edits your own file, so you won't overwrite each other's work.
    ```bash
    cd Sortle
    ```
-4. Open the `Sortle` folder in VS Code.
+4. **Switch to your own branch.** Each of you has a branch named after you, so your work stays separate until it's ready:
+
+   | Who | Branch | Command |
+   |---|---|---|
+   | Yuhan | `yuhan` | `git switch yuhan` |
+   | Siqing | `siqing` | `git switch siqing` |
+
+   Check you're on the right one with `git branch`. Your branch has a `*` next to it.
+5. Open the `Sortle` folder in VS Code.
 
 ---
 
@@ -51,7 +59,7 @@ Each of you only edits your own file, so you won't overwrite each other's work.
    ```bash
    dotnet run -- check sort
    ```
-   That one is for Student A. Student B runs:
+   That one is for Yuhan. Siqing runs:
    ```bash
    dotnet run -- check score
    ```
@@ -65,14 +73,15 @@ Each of you only edits your own file, so you won't overwrite each other's work.
    - `[FAIL]`: your code runs but gives a wrong answer. The message tells you what it got and what it expected.
    - `[TODO]`: you haven't written this step yet, or it needs an earlier step to be done first.
 
-4. Once **both** files pass, play the game:
+4. Once **both** files are finished and merged into `main` (see below), play the full game:
    ```bash
    dotnet run
    ```
+   On your own branch, your teammate's file is still unfinished, so the game stops and tells you which step is missing. That's expected.
 
-### Saving and sharing your work (git)
+### Saving your work (git)
 
-When a step passes, save it to GitHub:
+Always work on **your own branch**, never directly on `main`. When a step passes, save it to GitHub:
 
 ```bash
 git add StudentWork
@@ -81,13 +90,25 @@ git add StudentWork
 git commit -m "BubbleSorter: finished step 2"
 ```
 ```bash
-git pull
-```
-```bash
 git push
 ```
 
-Run `git pull` before `git push`, so you also get your teammate's latest work.
+Your work goes to your branch on GitHub (`yuhan` or `siqing`), so your teacher can see your progress.
+
+### When your file is finished
+
+When `dotnet run -- check` shows `[PASS]` for all 5 of your steps:
+1. Push your last commit.
+2. On GitHub, open a **pull request** from your branch into `main`.
+3. Your teacher reviews it and merges it.
+
+When both pull requests are merged, everyone switches to `main` and pulls to get the full game:
+```bash
+git switch main
+```
+```bash
+git pull
+```
 
 ---
 
