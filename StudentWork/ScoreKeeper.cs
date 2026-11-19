@@ -52,6 +52,8 @@
 //
 // =====================================================================
 
+using System.ComponentModel;
+
 namespace Sortle;
 
 public class ScoreKeeper
@@ -118,14 +120,26 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public int GetMinLength(int level)
     {
-        // TODO (Step 1): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 1: GetMinLength");
+        switch (level)
+        {
+            case 1: return 3;
+            case 2: return 7;
+            case 3: return 10;
+            case 4: return 15;
+            default: return 0;
+        }
     }
 
     public int GetMaxLength(int level)
     {
-        // TODO (Step 1): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 1: GetMaxLength");
+        switch (level)
+        {
+            case 1: return 5;
+            case 2: return 10;
+            case 3: return 15;
+            case 4: return 20;
+            default: return 0;
+        }
     }
 
 
@@ -148,14 +162,22 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public int GetTimeBonus(int level)
     {
-        // TODO (Step 2): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 2: GetTimeBonus");
+        return level * 5;
     }
 
     public int GetTimePenalty(int level)
     {
-        // TODO (Step 2): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 2: GetTimePenalty");
+        switch (level)
+        {
+            case 1:
+            case 2:
+                return 5;
+            case 3:
+            case 4:
+                return 7;
+            default:
+                return 0;
+        }
     }
 
 
@@ -178,8 +200,14 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public void Tick(double seconds)
     {
-        // TODO (Step 3): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 3: Tick");
+        if (IsGameOver) { return ; }
+
+        TimeLeft -= seconds;
+        if (TimeLeft <= 0)
+        {
+            TimeLeft = 0;
+            IsGameOver = true;
+        }
     }
 
 
@@ -223,8 +251,36 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public void SubmitAnswer(bool isCorrect)
     {
-        // TODO (Step 4): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 4: SubmitAnswer");
+        if (IsGameOver) {return ;}
+
+        if (isCorrect)
+        {
+            TimeLeft += GetTimeBonus(CurrentLevel);
+            TotalCorrect++;
+            ProblemsSolvedThisLevel++;
+            if (CurrentLevel == MaxLevel)
+            {
+                HasWonGame = true;
+                IsGameOver = true;
+            }
+            else
+            {
+                CurrentLevel++;
+                ProblemsSolvedThisLevel = 0;
+                WrongThisLevel = 0;
+            }
+        }
+        else
+        {
+            TimeLeft -= GetTimePenalty(CurrentLevel);
+            TotalWrong++;
+            WrongThisLevel++;
+            Tick(GetTimePenalty(CurrentLevel));
+            if (WrongThisLevel == MaxWrongPerLevel)
+            {
+                IsGameOver = true;
+            }
+        }
     }
 
 
@@ -249,7 +305,14 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public string GetMasteryRating()
     {
-        // TODO (Step 5): delete the line below and write your code.
-        throw new NotImplementedException("ScoreKeeper Step 5: GetMasteryRating");
+        switch (LevelsCleared)
+        {
+            case 0: return "Not Yet Sorted";
+            case 1: return "Bubble Beginner";
+            case 2: return "Swap Apprentice";
+            case 3: return "Bubble Expert";
+            case 4: return "Bubble Sort Master";
+            default: return "Not Yet Sorted";
+        }
     }
 }
