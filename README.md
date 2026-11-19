@@ -2,9 +2,19 @@
 
 **A game that teaches bubble sort.**
 
-The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 5 right to pass a level, but 5 mistakes in one level ends the game. Clear all 4 levels before your time runs out.
+The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 1 right to pass a level, but 5 mistakes in one level ends the game. Clear all 4 levels before your time runs out.
 
 You write the main logic of the game yourselves, by hand, in C#. The website version (from our Canva design) gets added later and will use the code you write here.
+
+### Rule change: 1 right answer passes a level
+
+The team changed the rule from "5 right to pass a level" to **"1 right to pass a level"**. The checker now tests the new rule.
+
+- **Siqing:** change `ProblemsPerLevel` at the top of `ScoreKeeper.cs` from `5` to `1`. Your `SubmitAnswer` should still check `ProblemsSolvedThisLevel >= ProblemsPerLevel` to clear a level. Update the comments in your file to match too.
+- **Both of you:** get the new checker into your branch before you carry on:
+  ```bash
+  git pull origin main
+  ```
 
 ---
 
