@@ -47,7 +47,6 @@
 //    of the game (and the website later on) calls these methods by name.
 //
 // =====================================================================
-
 namespace Sortle;
 
 public static class BubbleSorter
@@ -71,7 +70,14 @@ public static class BubbleSorter
     public static int[] GenerateRandomList(int length, Random random)
     {
         // TODO (Step 1): delete the line below and write your code.
-        throw new NotImplementedException("BubbleSorter Step 1: GenerateRandomList");
+        int [] numbers = new int[length];
+        for (int i = 0; i < length; i++)
+        {
+            numbers[i] = random.Next(1, 1001);
+        }
+        return numbers;
+
+        
     }
 
 
@@ -95,7 +101,9 @@ public static class BubbleSorter
     public static void Swap(int[] numbers, int i, int j)
     {
         // TODO (Step 2): delete the line below and write your code.
-        throw new NotImplementedException("BubbleSorter Step 2: Swap");
+        int temp = numbers[i];
+        numbers [i] = numbers [j];
+        numbers [j] = temp;
     }
 
 
@@ -121,7 +129,15 @@ public static class BubbleSorter
     public static bool IsSorted(int[] numbers)
     {
         // TODO (Step 3): delete the line below and write your code.
-        throw new NotImplementedException("BubbleSorter Step 3: IsSorted");
+        for (int k = 0; k < numbers.Length - 1; k++)
+        {
+            if (numbers[k] > numbers[k + 1])
+            {
+                return false;
+            }
+        } 
+        return true;
+
     }
 
 
@@ -155,7 +171,21 @@ public static class BubbleSorter
     public static int CountSwaps(int[] numbers)
     {
         // TODO (Step 4): delete the line below and write your code.
-        throw new NotImplementedException("BubbleSorter Step 4: CountSwaps");
+        int[] copy = (int[])numbers.Clone();
+        int swaps = 0;
+        while (!IsSorted(copy))
+        {
+            for (int k = 0; k < copy.Length - 1; k++)
+            {
+                if (copy[k] > copy[k + 1])
+                {
+                    Swap(copy, k, k + 1);
+                    swaps++;
+                }
+            }
+
+        }
+        return swaps;
     }
 
 
@@ -188,6 +218,21 @@ public static class BubbleSorter
     public static List<int[]> GetSortSteps(int[] numbers)
     {
         // TODO (Step 5): delete the line below and write your code.
-        throw new NotImplementedException("BubbleSorter Step 5: GetSortSteps");
+        List<int[]> steps = new List<int[]>();
+        int[] copy = (int[])numbers.Clone();
+        while (!IsSorted(copy))
+        {
+            for (int k = 0; k < copy.Length - 1; k++)
+            {
+                if (copy[k] > copy[k + 1])
+                {
+                    Swap(copy, k, k + 1);
+                    steps.Add((int[])copy.Clone());
+                }
+            }
+
+        }
+        return steps;
     }
 }
+
