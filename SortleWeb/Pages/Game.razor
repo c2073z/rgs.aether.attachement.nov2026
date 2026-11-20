@@ -60,7 +60,7 @@
                 <button class="square-btn corner" title="Back to start" @onclick="GoHome">✕</button>
                 <div class="logo-box title-box"><span class="logo"><ColorWord Text="rules" /></span></div>
                 <p>You will be given a list of numbers.<br />Your task is to guess how many swaps you need to make between adjacent numbers in order for the numbers to be arranged in increasing order.</p>
-                <p>You are given a total of 1 minute to pass all four levels, and five tries to pass each level. If your answer is correct, time will be added to your timer. If your answer is wrong, time will be deducted from your timer.</p>
+                <p>You are given a total of 1 minute to pass all four levels. If your answer is correct, time will be added to your timer. If your answer is wrong, time will be deducted from your timer.</p>
                 <div class="row">
                     <button class="btn pink soft" @onclick="() => OpenDemo(null)">demo</button>
                     <button class="btn pink" @onclick="StartGame">start</button>
@@ -433,9 +433,7 @@
     private async Task EndGame()
     {
         StopClock();
-        if (score.HasWonGame) endReason = $"You cleared all {ScoreKeeper.MaxLevel} levels!";
-        else if (score.TimeLeft <= 0) endReason = "Time's up!";
-        else endReason = $"{ScoreKeeper.MaxWrongPerLevel} mistakes in one level.";
+        endReason = score.HasWonGame ? $"You cleared all {ScoreKeeper.MaxLevel} levels!" : "Time's up!";
 
         mastery = "";
         TryRun(() => mastery = score.GetMasteryRating());
