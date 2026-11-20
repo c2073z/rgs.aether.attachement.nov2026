@@ -159,6 +159,10 @@ git pull
 
 ## The website (SortleWeb/)
 
+**Play online:** <https://c2073z.github.io/rgs.aether.attachement.nov2026/>
+
+Every push to `main` rebuilds and republishes the website automatically (see `.github/workflows/pages.yml`). The workflow runs the checker first, so a broken student file stops a bad version going live.
+
 The `SortleWeb/` folder is the website version of the game, built from our Canva design. It runs **your** two files from `StudentWork/` in the browser. You don't edit anything in it.
 
 To try it, once both of your files pass the checker:
