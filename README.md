@@ -2,6 +2,10 @@
 
 **A game that teaches bubble sort.**
 
+🎮 **Play it here:** <https://c2073z.github.io/rgs.aether.attachement.nov2026/>
+
+The game is hosted on **GitHub Pages**. It updates automatically every time new code is pushed to `main`.
+
 ## Credits
 
 **Game Developers:**
@@ -159,7 +163,7 @@ git pull
 
 ## The website (SortleWeb/)
 
-**Play online:** <https://c2073z.github.io/rgs.aether.attachement.nov2026/>
+**Play online (hosted on GitHub Pages):** <https://c2073z.github.io/rgs.aether.attachement.nov2026/>
 
 Every push to `main` rebuilds and republishes the website automatically (see `.github/workflows/pages.yml`). The workflow runs the checker first, so a broken student file stops a bad version going live.
 
