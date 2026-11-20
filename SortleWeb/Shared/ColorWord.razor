@@ -1,0 +1,24 @@
+@* Writes a word with each letter in the next Canva colour (red, lilac, blue, green, black),
+   like "rules" and "Level 1" in the design. Spaces are skipped. *@
+@foreach (var (ch, colour) in Letters())
+{
+    <span class="@colour">@ch</span>
+}
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public int Start { get; set; }
+
+    private static readonly string[] Colours = { "c-red", "c-lilac", "c-blue", "c-green", "c-black" };
+
+    private IEnumerable<(char, string)> Letters()
+    {
+        int k = Start;
+        foreach (char ch in Text)
+        {
+            if (ch == ' ') { yield return (ch, ""); continue; }
+            yield return (ch, Colours[k % Colours.Length]);
+            k++;
+        }
+    }
+}

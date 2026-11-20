@@ -11,6 +11,10 @@
   <ItemGroup>
     <!-- Teacher-only folder (not pushed to GitHub). Never compile it with the game. -->
     <Compile Remove="answer-key/**" />
+    <!-- The website is its own project. Keep it out of the terminal game. -->
+    <Compile Remove="SortleWeb/**" />
+    <Content Remove="SortleWeb/**" />
+    <None Remove="SortleWeb/**" />
   </ItemGroup>
 
 </Project>

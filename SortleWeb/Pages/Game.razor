@@ -1,0 +1,630 @@
+@*
+  =====================================================================
+   SORTLE WEBSITE  -  Pages/Game.razor   (built by the AI agent)
+  =====================================================================
+   The only page of the website. It draws every screen from the Canva
+   design and wires the buttons to the students' code:
+
+     BubbleSorter (Yuhan)  -> GenerateRandomList, CountSwaps, GetSortSteps
+     ScoreKeeper  (Siqing) -> levels, list lengths, clock, bonuses,
+                              penalties, game over, mastery title
+
+   This file never decides the rules itself. It asks ScoreKeeper.
+  =====================================================================
+*@
+@page "/"
+@implements IDisposable
+@inject IJSRuntime JS
+
+<div class="stage">
+    @switch (screen)
+    {
+        case Screen.Credits:
+            <section class="card theme-sky credits" @onclick="GoHome">
+                <p class="dev-label">Game Developers:</p>
+                <div class="dev-box">
+                    <span>Cai Yuhan (RGS 409 '26)</span>
+                    <span>Cham Si Qing (RGS 403 '26)</span>
+                </div>
+                <p>This game was developed during a 1-week work attachment at<br />RSAF RAiD AETHER-SUTD</p>
+                <p>The core game engine is fully built by the game developers.<br />The game user experience and user design was done by the game<br />developers in Canva.</p>
+                <div class="ai-note">
+                    <p>Due to the short time frame, an AI Agent was deployed to only</p>
+                    <ol>
+                        <li>Convert the front end to HTML</li>
+                        <li>Write the script to host C# on HTML</li>
+                    </ol>
+                </div>
+                <div class="mentor-strip">
+                    <span class="mentors">Mentored by:<br />Ahmad Farhan<br />Cephas Koh</span>
+                    <img src="img/logo-raid.png" alt="RAiD" width="36" height="16" />
+                    <img src="img/logo-aether.png" alt="AETHER" width="40" height="39" />
+                    <img src="img/logo-raffles.png" alt="Raffles Girls' School" width="34" height="41" />
+                </div>
+            </section>
+            break;
+
+        case Screen.Start:
+            <section class="card theme-sky start">
+                <div class="logo huge"><LogoLetters /></div>
+                <p class="tagline"><ColorWord Text="guess the swaps" /></p>
+                <div class="row start-buttons">
+                    <button class="btn pink soft" @onclick="() => screen = Screen.Rules">rules</button>
+                    <button class="btn pink" @onclick="StartGame">start</button>
+                </div>
+            </section>
+            break;
+
+        case Screen.Rules:
+            <section class="card theme-sky rules">
+                <button class="square-btn corner" title="Back to start" @onclick="GoHome">✕</button>
+                <div class="logo-box title-box"><span class="logo"><ColorWord Text="rules" /></span></div>
+                <p>You will be given a list of numbers.<br />Your task is to guess how many swaps you need to make between adjacent numbers in order for the numbers to be arranged in increasing order.</p>
+                <p>You are given a total of 1 minute to pass all four levels. If your answer is correct, time will be added to your timer. If your answer is wrong, time will be deducted from your timer.</p>
+                <div class="row">
+                    <button class="btn pink soft" @onclick="() => OpenDemo(null)">demo</button>
+                    <button class="btn pink" @onclick="StartGame">start</button>
+                </div>
+            </section>
+            break;
+
+        case Screen.Demo:
+            <section class="card theme-lilac demo">
+                <header class="top">
+                    <span class="tag demo-tag">demo</span>
+                    <span class="logo-box"><span class="logo"><LogoLetters /></span></span>
+                    <button class="square-btn" title="Back" @onclick="CloseDemo">✕</button>
+                </header>
+
+                @if (demoError != null)
+                {
+                    <p class="not-ready">@demoError</p>
+                }
+                else
+                {
+                    <div class="numbers lilac">
+                        <NumberChain Numbers="DemoList" Zigzag="DemoList.Length > 10" Hot="DemoHot" />
+                    </div>
+
+                    <p class="caption">@DemoCaption</p>
+
+                    <div class="row demo-controls">
+                        <button class="btn small demo-btn" disabled="@(demoStep == 0)" @onclick="() => DemoGo(demoStep - 1)">◀ back</button>
+                        <button class="btn small demo-btn" @onclick="ToggleDemoPlay">@(demoPlaying ? "pause" : "play")</button>
+                        <button class="btn small demo-btn" disabled="@(demoStep >= demoSteps.Count)" @onclick="() => DemoGo(demoStep + 1)">next ▶</button>
+                    </div>
+                    <div class="terminal">
+                        <div class="dots"><i></i><i></i><i></i></div>
+                        <div class="code">
+                            @for (int i = 0; i < CodeLines.Length; i++)
+                            {
+                                int line = i;
+                                <div class="code-line @(DemoLineIsHot(line) ? "hot" : "")">@CodeLines[line]</div>
+                            }
+                        </div>
+                    </div>
+
+                }
+            </section>
+            break;
+
+        case Screen.Playing:
+        case Screen.Paused:
+            <section class="card play @($"level-{shownLevel}")">
+                <header class="top">
+                    <span class="tag"><ColorWord Text="Level" /> <span class="@LevelDigitColour">@shownLevel</span></span>
+                    <span class="logo-box"><span class="logo"><LogoLetters /></span></span>
+                    <button class="square-btn" title="Pause" @onclick="Pause"><PauseIcon /></button>
+                </header>
+
+                <p class="question">How many swaps need to be made for the<br class="wide-only" /> numbers to be arranged from smallest to largest?</p>
+
+                <div class="numbers">
+                    <NumberChain Numbers="puzzle" Zigzag="puzzle.Length > 10" />
+                </div>
+
+                <footer class="bottom">
+                    <div class="clock">
+                        <StopwatchIcon Seconds="score.TimeLeft" />
+                        <div class="time-box">
+                            <small>Time Left:</small>
+                            <strong>@FormatTime(score.TimeLeft)</strong>
+                        </div>
+                        @if (feedback != null && feedback.Seconds > 0)
+                        {
+                            <span class="delta @(feedback.IsCorrect ? "up" : "down")">
+                                @(feedback.IsCorrect ? "+" : "-")@(feedback.Seconds)s
+                                @if (feedback.IsCorrect)
+                                {
+                                    <i class="burst b1"></i><i class="burst b2"></i>
+                                }
+                                else
+                                {
+                                    <i class="thumb">👎</i>
+                                }
+                            </span>
+                        }
+                    </div>
+
+                    <div class="answer">
+                        <input @ref="answerBox" class="answer-box" type="number" min="0" inputmode="numeric"
+                               placeholder="Enter Answer..." disabled="@(feedback != null || screen == Screen.Paused)"
+                               @bind="answerText" @bind:event="oninput" @onkeydown="AnswerKeyDown" />
+
+                        @if (feedback != null)
+                        {
+                            <div class="verdict @(feedback.IsCorrect ? "good" : "bad")">
+                                @if (feedback.IsCorrect)
+                                {
+                                    <span class="verdict-box">Correct!</span>
+                                }
+                                else
+                                {
+                                    <span class="verdict-box">Wrong :(</span>
+                                    <div class="wrong-extras">
+                                        <span class="was">the answer was @feedback.CorrectAnswer</span>
+                                        <button class="btn small" @onclick="() => OpenDemo(feedback.Puzzle)">show me how</button>
+                                        <button class="btn small pink" @onclick="NextProblem">next</button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else if (inputMessage != null)
+                        {
+                            <p class="input-msg">@inputMessage</p>
+                        }
+                    </div>
+                </footer>
+
+                @if (screen == Screen.Paused)
+                {
+                    <div class="overlay theme-lilac paused">
+                        <div class="corner-icons">
+                            <button class="plain-icon" title="Home" @onclick="GoHome"><HomeIcon /></button>
+                            <button class="square-btn" title="Resume" @onclick="Resume"><PauseIcon /></button>
+                        </div>
+                        <div class="logo-box"><span class="logo"><LogoLetters /></span></div>
+                        <h1 class="big-title">game paused</h1>
+                        <div class="col">
+                            <button class="btn blue" @onclick="StartGame">restart</button>
+                            <button class="btn blue" @onclick="Resume">resume</button>
+                        </div>
+                    </div>
+                }
+            </section>
+            break;
+
+        case Screen.End:
+            <section class="card theme-sky end">
+                <div class="logo-box"><span class="logo"><LogoLetters /></span></div>
+                <h1 class="big-title" title="@endReason">@(score.HasWonGame ? "you win!" : "game over")</h1>
+                <div class="row">
+                    <span class="pill">level reached: @LevelReached</span>
+                    <span class="pill">time left: @Math.Ceiling(score.TimeLeft)s</span>
+                </div>
+                <p class="mastery">@mastery</p>
+                <div class="col">
+                    <button class="btn pink" @onclick="StartGame">restart</button>
+                    <button class="btn pink" @onclick="GoHome">home</button>
+                </div>
+                @if (best != null)
+                {
+                    <div class="high-score">
+                        <strong>High score</strong>
+                        <span>level reached: @best.Level</span>
+                        <span>time left: @best.Time s</span>
+                        @if (isNewBest)
+                        {
+                            <em>new!</em>
+                        }
+                    </div>
+                }
+            </section>
+            break;
+
+        case Screen.NotReady:
+            <section class="card theme-sky not-ready-card">
+                <div class="logo"><LogoLetters /></div>
+                <h2>Almost there!</h2>
+                <p>The game can't run yet because this part of the C# isn't written:</p>
+                <code>@notReadyMessage</code>
+                <p>Finish it in <strong>StudentWork/</strong>, then run <code>dotnet run -- check</code> to see what's left.</p>
+                <button class="btn pink" @onclick="GoHome">home</button>
+            </section>
+            break;
+    }
+</div>
+
+@code {
+    // ----- Which screen is showing (one for each frame in the Canva design) -----
+    private enum Screen { Credits, Start, Rules, Demo, Playing, Paused, End, NotReady }
+    private Screen screen = Screen.Credits;
+
+    // ----- The game, using the students' code -----
+    private readonly Random random = new();
+    private ScoreKeeper score = new();
+    private int[] puzzle = Array.Empty<int>();
+    private int correctAnswer;
+    private int shownLevel = 1;            // the level the current puzzle belongs to
+
+    // ----- The answer box and the "Answer is ..." message -----
+    private ElementReference answerBox;
+    private bool focusAnswer;
+    private string answerText = "";
+    private string? inputMessage;
+    private Feedback? feedback;
+    private record Feedback(bool IsCorrect, int Seconds, int CorrectAnswer, int[] Puzzle);
+
+    // ----- The clock -----
+    private readonly Stopwatch clock = new();
+    private CancellationTokenSource? loopStop;
+
+    // ----- End screen -----
+    private string endReason = "";
+    private string mastery = "";
+    private HighScore? best;
+    private bool isNewBest;
+    private record HighScore(int Level, int Time);
+    private int LevelReached => score.HasWonGame ? ScoreKeeper.MaxLevel : score.CurrentLevel;
+
+    private string? notReadyMessage;
+
+    // =================================================================
+    //  Start-up: show the credits for 3 seconds, then the start screen
+    // =================================================================
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(3000);
+        if (screen == Screen.Credits)
+        {
+            screen = Screen.Start;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusAnswer && screen == Screen.Playing && feedback == null)
+        {
+            focusAnswer = false;
+            try { await answerBox.FocusAsync(); } catch (Exception) { /* box not on screen */ }
+        }
+    }
+
+    private void GoHome()
+    {
+        StopClock();
+        screen = Screen.Start;
+    }
+
+    // =================================================================
+    //  Playing the game
+    // =================================================================
+    private void StartGame()
+    {
+        StopClock();
+        score = new ScoreKeeper();
+        feedback = null;
+        if (TryRun(NewPuzzle))
+        {
+            screen = Screen.Playing;
+            StartClock();
+        }
+    }
+
+    // A new list for the current level. Length comes from Siqing's code,
+    // the numbers and the correct answer from Yuhan's code.
+    private void NewPuzzle()
+    {
+        shownLevel = score.CurrentLevel;
+        int length = random.Next(score.GetMinLength(shownLevel), score.GetMaxLength(shownLevel) + 1);
+        puzzle = BubbleSorter.GenerateRandomList(length, random);
+        correctAnswer = BubbleSorter.CountSwaps(puzzle);
+        answerText = "";
+        inputMessage = null;
+        feedback = null;
+        focusAnswer = true;
+    }
+
+    private async Task AnswerKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SubmitAnswer();
+        }
+    }
+
+    private async Task SubmitAnswer()
+    {
+        if (feedback != null || screen != Screen.Playing) return;
+
+        if (!int.TryParse(answerText.Trim(), out int guess) || guess < 0)
+        {
+            inputMessage = "Type a whole number (0 or more).";
+            return;
+        }
+
+        int level = shownLevel;
+        bool isCorrect = guess == correctAnswer;
+        if (!TryRun(() => score.SubmitAnswer(isCorrect))) return;
+
+        int seconds = isCorrect ? score.GetTimeBonus(level) : score.GetTimePenalty(level);
+        feedback = new Feedback(isCorrect, seconds, correctAnswer, puzzle);
+        StateHasChanged();
+
+        if (isCorrect)
+        {
+            // Show "Correct!" for a moment, then move on by ourselves.
+            Feedback shown = feedback;
+            await Task.Delay(1400);
+            if (feedback == shown && screen == Screen.Playing)
+            {
+                NextProblem();
+            }
+        }
+        // A wrong answer waits for "next" (or "show me how").
+    }
+
+    private void NextProblem()
+    {
+        if (score.IsGameOver)
+        {
+            _ = EndGame();
+            return;
+        }
+        TryRun(NewPuzzle);
+    }
+
+    private void Pause()
+    {
+        if (screen == Screen.Playing) screen = Screen.Paused;
+    }
+
+    private void Resume()
+    {
+        screen = Screen.Playing;
+        focusAnswer = true;
+    }
+
+    // =================================================================
+    //  The clock: every 0.1 s, tell ScoreKeeper how much time passed.
+    //  It only runs while the player is thinking (not on pause or while
+    //  the "Answer is ..." message is showing).
+    // =================================================================
+    private void StartClock()
+    {
+        loopStop = new CancellationTokenSource();
+        _ = ClockLoop(loopStop.Token);
+    }
+
+    private void StopClock()
+    {
+        loopStop?.Cancel();
+        loopStop = null;
+    }
+
+    private async Task ClockLoop(CancellationToken stop)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
+        clock.Restart();
+        try
+        {
+            while (await timer.WaitForNextTickAsync(stop))
+            {
+                double seconds = clock.Elapsed.TotalSeconds;
+                clock.Restart();
+
+                if (screen != Screen.Playing || feedback != null) continue;
+
+                if (!TryRun(() => score.Tick(seconds))) return;
+                if (score.IsGameOver)
+                {
+                    await EndGame();
+                    return;
+                }
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The game was restarted or left.
+        }
+    }
+
+    private async Task EndGame()
+    {
+        StopClock();
+        endReason = score.HasWonGame ? $"You cleared all {ScoreKeeper.MaxLevel} levels!" : "Time's up!";
+
+        mastery = "";
+        TryRun(() => mastery = score.GetMasteryRating());
+        if (screen == Screen.NotReady) return;
+
+        await SaveHighScore();
+        screen = Screen.End;
+        StateHasChanged();
+    }
+
+    // Best = reached a higher level, or the same level with more time left.
+    // Kept in this browser only (localStorage).
+    private async Task SaveHighScore()
+    {
+        var now = new HighScore(LevelReached, (int)Math.Ceiling(score.TimeLeft));
+        best = null;
+        try
+        {
+            string? saved = await JS.InvokeAsync<string?>("localStorage.getItem", "sortle-best");
+            if (saved != null)
+            {
+                string[] parts = saved.Split(',');
+                best = new HighScore(int.Parse(parts[0]), int.Parse(parts[1]));
+            }
+        }
+        catch (Exception) { /* nothing saved, or storage blocked */ }
+
+        isNewBest = best == null || now.Level > best.Level || (now.Level == best.Level && now.Time > best.Time);
+        if (isNewBest)
+        {
+            best = now;
+            try { await JS.InvokeVoidAsync("localStorage.setItem", "sortle-best", $"{now.Level},{now.Time}"); }
+            catch (Exception) { /* storage blocked: keep it for this visit only */ }
+        }
+    }
+
+    // Runs a piece of student code. If that step isn't written yet, show a
+    // friendly "Almost there!" screen instead of crashing.
+    private bool TryRun(Action action)
+    {
+        try
+        {
+            action();
+            return true;
+        }
+        catch (NotImplementedException ex)
+        {
+            StopClock();
+            notReadyMessage = ex.Message;
+            screen = Screen.NotReady;
+            return false;
+        }
+    }
+
+    private static string FormatTime(double seconds)
+    {
+        int whole = (int)Math.Ceiling(Math.Max(0, seconds));
+        return $"{whole / 60}m {whole % 60:00}s";
+    }
+
+    // =================================================================
+    //  Demo: replays bubble sort one swap at a time, using Yuhan's
+    //  GetSortSteps (Step 5). The code panel lights up the lines that run.
+    // =================================================================
+    private static readonly string[] CodeLines =
+    {
+        "static void BubbleSort(int[] nums)",
+        "{",
+        "    bool swapped = true;",
+        "    while (swapped)",
+        "    {",
+        "        swapped = false;",
+        "        for (int i = 0; i < nums.Length - 1; i++)",
+        "        {",
+        "            if (nums[i] > nums[i + 1])",
+        "            {",
+        "                (nums[i], nums[i + 1]) = (nums[i + 1], nums[i]);",
+        "                swapped = true;",
+        "            }",
+        "        }",
+        "    }",
+        "}",
+    };
+
+    private Screen demoReturn = Screen.Start;
+    private int[] demoStart = Array.Empty<int>();
+    private List<int[]> demoSteps = new();
+    private int demoStep;                  // 0 = the starting list, n = after swap n
+    private int demoSwapAt = -1;           // left index of the pair that just swapped
+    private bool demoPlaying;
+    private string? demoError;
+    private CancellationTokenSource? demoStop;
+
+    private int[] DemoList => demoStep == 0 ? demoStart : demoSteps[demoStep - 1];
+
+    private string DemoCaption
+    {
+        get
+        {
+            if (demoSteps.Count == 0) return "Already sorted: bubble sort makes 0 swaps.";
+            if (demoStep == 0) return $"Start. Bubble sort compares each pair of neighbours. Press play. ({demoSteps.Count} swaps in total)";
+            int[] before = demoStep == 1 ? demoStart : demoSteps[demoStep - 2];
+            string done = demoStep == demoSteps.Count ? "  Sorted!" : "";
+            return $"Swap {demoStep} of {demoSteps.Count}: {before[demoSwapAt]} > {before[demoSwapAt + 1]}, so they swap.{done}";
+        }
+    }
+
+    private ICollection<int> DemoHot => demoSwapAt >= 0 ? new[] { demoSwapAt, demoSwapAt + 1 } : Array.Empty<int>();
+
+    private string LevelDigitColour => new[] { "c-red", "c-lilac", "c-blue", "c-green" }[Math.Clamp(shownLevel, 1, 4) - 1];
+
+    private bool DemoLineIsHot(int line) => demoStep > 0 && (line == 8 || line == 10);
+
+    private void OpenDemo(int[]? list)
+    {
+        demoReturn = screen == Screen.Playing ? Screen.Playing : screen;
+        demoError = null;
+        demoStep = 0;
+        demoSwapAt = -1;
+        demoPlaying = false;
+        try
+        {
+            demoStart = list ?? BubbleSorter.GenerateRandomList(7, random);
+            demoSteps = BubbleSorter.GetSortSteps(demoStart);
+        }
+        catch (NotImplementedException ex)
+        {
+            demoError = $"The demo needs this step first: {ex.Message}";
+        }
+        screen = Screen.Demo;
+    }
+
+    private void CloseDemo()
+    {
+        demoStop?.Cancel();
+        demoPlaying = false;
+        if (demoReturn == Screen.Playing)
+        {
+            screen = Screen.Playing;
+            NextProblem();
+        }
+        else
+        {
+            screen = Screen.Rules;
+        }
+    }
+
+    private void DemoGo(int step)
+    {
+        demoStep = Math.Clamp(step, 0, demoSteps.Count);
+        demoSwapAt = -1;
+        if (demoStep > 0)
+        {
+            int[] before = demoStep == 1 ? demoStart : demoSteps[demoStep - 2];
+            int[] after = demoSteps[demoStep - 1];
+            for (int i = 0; i < after.Length; i++)
+            {
+                if (before[i] != after[i]) { demoSwapAt = i; break; }
+            }
+        }
+    }
+
+    private async Task ToggleDemoPlay()
+    {
+        if (demoPlaying)
+        {
+            demoStop?.Cancel();
+            demoPlaying = false;
+            return;
+        }
+
+        if (demoStep >= demoSteps.Count) DemoGo(0);
+        demoPlaying = true;
+        demoStop = new CancellationTokenSource();
+        CancellationToken stop = demoStop.Token;
+        try
+        {
+            while (demoStep < demoSteps.Count)
+            {
+                await Task.Delay(1100, stop);
+                DemoGo(demoStep + 1);
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException) { }
+        demoPlaying = false;
+    }
+
+    public void Dispose()
+    {
+        StopClock();
+        demoStop?.Cancel();
+    }
+}
