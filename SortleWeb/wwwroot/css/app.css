@@ -284,8 +284,15 @@ button { font-family: inherit; }
 }
 .chain .link { stroke: var(--link); stroke-width: 2.2; }
 .chain .link-end { fill: none; stroke: var(--link); stroke-width: 2; }
-.chain .node { transition: transform .3s; transform-box: fill-box; transform-origin: center; }
-.chain .node.hot { transform: translateY(-5px) scale(1.08); }
+.chain .node.slide { transition: transform .7s ease-in-out; }
+.chain .bump { transition: transform .3s; }
+.chain .node.hot .bump { transform: scale(1.08); }
+.chain .hop-up { animation: hop-up .7s ease-in-out; }
+.chain .hop-down { animation: hop-down .7s ease-in-out; }
+@keyframes hop-up { 50% { transform: translateY(-34px); } }
+@keyframes hop-down { 50% { transform: translateY(34px); } }
+.chain .index text { font-size: 15px; font-weight: 700; fill: #6a3fb8; opacity: .75; }
+.chain .index.hot text { fill: #ff5757; opacity: 1; }
 .chain .node.hot .blob { fill: #ff5757; }
 
 .bottom {

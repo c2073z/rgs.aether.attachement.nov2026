@@ -18,14 +18,29 @@
         <circle class="link-end" cx="@F(ax)" cy="@F(ay)" r="4" />
         <circle class="link-end" cx="@F(bx)" cy="@F(by)" r="4" />
     }
-    @for (int i = 0; i < Numbers.Length; i++)
+    @if (ShowIndex)
     {
-        var (x, y) = Centre(i);
-        string text = Numbers[i].ToString();
-        <g class="node @(Hot.Contains(i) ? "hot" : "")">
-            <path class="blob" d="@Blob(x, y, i)" />
-            <text x="@F(x)" y="@F(y)" dy="0.36em" text-anchor="middle"
-                  font-size="@F(text.Length >= 4 ? R * 0.72 : text.Length == 3 ? R * 0.86 : R * 1.05)">@text</text>
+        @for (int i = 0; i < Numbers.Length; i++)
+        {
+            var (x, y) = Centre(i);
+            <g class="index @(Hot.Contains(i) ? "hot" : "")"><text x="@F(x)" y="@F(y + R + 17)" text-anchor="middle">[@i]</text></g>
+        }
+    }
+    @for (int id = 0; id < Numbers.Length; id++)
+    {
+        int pos = posOf[id];
+        var (x, y) = Centre(pos);
+        string text = Numbers[pos].ToString();
+        string hop = hopDir.TryGetValue(id, out int d) ? (d < 0 ? "hop-up" : "hop-down") : "";
+        <g @key="id" class="node @(Animate ? "slide" : "") @(Hot.Contains(pos) ? "hot" : "")"
+           style="transform: translate(@F(x)px, @F(y)px)">
+            <g @key="@(hop == "" ? "still" : $"{hop}-{hopGen}")" class="hop @hop">
+                <g class="bump">
+                    <path class="blob" d="@Blob(0, 0, id)" />
+                    <text x="0" y="0" dy="0.36em" text-anchor="middle"
+                          font-size="@F(text.Length >= 4 ? R * 0.72 : text.Length == 3 ? R * 0.86 : R * 1.05)">@text</text>
+                </g>
+            </g>
         </g>
     }
 </svg>
@@ -34,17 +49,46 @@
     [Parameter] public int[] Numbers { get; set; } = Array.Empty<int>();
     [Parameter] public bool Zigzag { get; set; }
     [Parameter] public ICollection<int> Hot { get; set; } = Array.Empty<int>();
+    // Ids[pos] = which bubble sits at that position. When it changes, each
+    // bubble (with its number) slides to its new place instead of the numbers
+    // just changing. Leave it out and every position is its own bubble.
+    [Parameter] public int[]? Ids { get; set; }
+    [Parameter] public bool Animate { get; set; }
+    [Parameter] public bool ShowIndex { get; set; }
+
+    private int[] posOf = Array.Empty<int>();          // posOf[id] = position
+    private Dictionary<int, int> lastPos = new();
+    private Dictionary<int, int> hopDir = new();       // -1 moved left (hops over), +1 moved right (dips under)
+    private int hopGen;
+
+    protected override void OnParametersSet()
+    {
+        int n = Numbers.Length;
+        int[] ids = Ids != null && Ids.Length == n ? Ids : Enumerable.Range(0, n).ToArray();
+        posOf = new int[n];
+        for (int p = 0; p < n; p++) posOf[ids[p]] = p;
+
+        var moved = new Dictionary<int, int>();
+        for (int id = 0; id < n; id++)
+        {
+            if (lastPos.TryGetValue(id, out int old) && old != posOf[id]) moved[id] = Math.Sign(posOf[id] - old);
+        }
+        if (moved.Count > 0) { hopDir = moved; hopGen++; }
+        else if (lastPos.Count != n) hopDir = new();
+        lastPos = Enumerable.Range(0, n).ToDictionary(id => id, id => posOf[id]);
+    }
 
     private double R => Zigzag ? 28 : 46;
     private double Step => Zigzag ? 62 : 132;
     private double Pad => R + 10;
     private double Width => Pad * 2 + Step * Math.Max(0, Numbers.Length - 1);
-    private double Height => Zigzag ? R * 2 + 46 + 20 : R * 2 + 24;
+    private double Height => (Zigzag ? R * 2 + 46 + 20 : R * 2 + 24) + (ShowIndex ? 22 : 0);
 
     private (double, double) Centre(int i)
     {
         double x = Pad + Step * i;
-        double y = Zigzag ? (i % 2 == 0 ? Pad - 2 : Height - Pad + 2) : Height / 2;
+        double h = Height - (ShowIndex ? 22 : 0);
+        double y = Zigzag ? (i % 2 == 0 ? Pad - 2 : h - Pad + 2) : h / 2;
         return (x, y);
     }
 

@@ -83,7 +83,7 @@
                 else
                 {
                     <div class="numbers lilac">
-                        <NumberChain Numbers="DemoList" Zigzag="DemoList.Length > 10" Hot="DemoHot" />
+                        <NumberChain Numbers="DemoList" Zigzag="DemoList.Length > 10" Hot="DemoHot" Ids="DemoIds" Animate="true" ShowIndex="true" />
                     </div>
 
                     <p class="caption">@DemoCaption</p>
@@ -543,7 +543,28 @@
             if (demoStep == 0) return $"Start. Bubble sort compares each pair of neighbours. Press play. ({demoSteps.Count} swaps in total)";
             int[] before = demoStep == 1 ? demoStart : demoSteps[demoStep - 2];
             string done = demoStep == demoSteps.Count ? "  Sorted!" : "";
-            return $"Swap {demoStep} of {demoSteps.Count}: {before[demoSwapAt]} > {before[demoSwapAt + 1]}, so they swap.{done}";
+            return $"Swap {demoStep} of {demoSteps.Count}: i = {demoSwapAt}, nums[{demoSwapAt}] = {before[demoSwapAt]} > nums[{demoSwapAt + 1}] = {before[demoSwapAt + 1]}, so they swap.{done}";
+        }
+    }
+
+    // Which bubble is at each position after demoStep swaps (replayed from the
+    // start), so the page can slide the same bubble along instead of redrawing.
+    private int[] DemoIds
+    {
+        get
+        {
+            int[] ids = Enumerable.Range(0, demoStart.Length).ToArray();
+            int[] prev = demoStart;
+            for (int s = 0; s < demoStep && s < demoSteps.Count; s++)
+            {
+                int[] next = demoSteps[s];
+                for (int i = 0; i + 1 < next.Length; i++)
+                {
+                    if (prev[i] != next[i]) { (ids[i], ids[i + 1]) = (ids[i + 1], ids[i]); break; }
+                }
+                prev = next;
+            }
+            return ids;
         }
     }
 
@@ -619,7 +640,7 @@
         {
             while (demoStep < demoSteps.Count)
             {
-                await Task.Delay(1100, stop);
+                await Task.Delay(1500, stop);
                 DemoGo(demoStep + 1);
                 StateHasChanged();
             }
