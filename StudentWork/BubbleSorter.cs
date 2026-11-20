@@ -47,11 +47,6 @@
 //    of the game (and the website later on) calls these methods by name.
 //
 // =====================================================================
-
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Runtime;
-
 namespace Sortle;
 
 public static class BubbleSorter
@@ -134,7 +129,7 @@ public static class BubbleSorter
     public static bool IsSorted(int[] numbers)
     {
         // TODO (Step 3): delete the line below and write your code.
-        for (int k = 0; k < numbers.Length; k++)
+        for (int k = 0; k < numbers.Length - 1; k++)
         {
             if (numbers[k] > numbers[k + 1])
             {
