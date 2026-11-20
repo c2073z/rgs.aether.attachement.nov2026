@@ -52,7 +52,6 @@
 //
 // =====================================================================
 
-using System.ComponentModel;
 
 namespace Sortle;
 
@@ -60,7 +59,7 @@ public class ScoreKeeper
 {
     // ===== GAME SETTINGS (already done for you, don't change) =====
     public const double StartingTime = 60;   // seconds on the clock at the start
-    public const int ProblemsPerLevel = 5;   // correct answers needed to level up
+    public const int ProblemsPerLevel = 1;   // correct answers needed to level up
     public const int MaxWrongPerLevel = 5;   // wrong answers in one level that end the game
     public const int MaxLevel = 4;           // the last level
 
@@ -162,7 +161,7 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public int GetTimeBonus(int level)
     {
-        if (CurrentLevel < 1 || CurrentLevel > 5)
+        if (CurrentLevel < 1 || CurrentLevel > 4)
         {
             return 0;
         }
@@ -262,6 +261,10 @@ public class ScoreKeeper
             TimeLeft += GetTimeBonus(CurrentLevel);
             TotalCorrect++;
             ProblemsSolvedThisLevel++;
+            if (ProblemsSolvedThisLevel >= ProblemsPerLevel)
+            {
+                LevelsCleared++;
+            }
             if (CurrentLevel == MaxLevel)
             {
                 HasWonGame = true;
@@ -276,11 +279,10 @@ public class ScoreKeeper
         }
         else
         {
-            TimeLeft -= GetTimePenalty(CurrentLevel);
             TotalWrong++;
             WrongThisLevel++;
             Tick(GetTimePenalty(CurrentLevel));
-            if (WrongThisLevel == MaxWrongPerLevel)
+            if (WrongThisLevel >= MaxWrongPerLevel)
             {
                 IsGameOver = true;
             }
