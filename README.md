@@ -6,19 +6,19 @@ The game shows you a list of random numbers. You guess how many **swaps** bubble
 
 You write the main logic of the game yourselves, by hand, in C#. The website version (from our Canva design) gets added later and will use the code you write here.
 
-### Rule change (Draft 2)
+### Rule change (Draft 3)
 
 The team updated the rules. The checker now tests these:
 
 | Level | List length | Correct answer | Wrong answer |
 |---|---|---|---|
-| 1 | 3 | +20 s | -5 s |
+| 1 | 3 | +10 s | -5 s |
 | 2 | 4 - 5 | +20 s | -5 s |
-| 3 | 6 - 7 | +40 s | -7 s |
-| 4 | 8 - 10 | +60 s | -7 s |
+| 3 | 6 - 7 | +30 s | -7 s |
+| 4 | 8 - 10 | game ends (you win!) | -7 s |
 
 - **1 right answer** passes a level.
-- There is **no mistake limit** any more. The game only ends when the clock reaches 0 (or you beat level 4).
+- There is **no mistake limit**. The game ends when the clock reaches 0, or when you get level 4 right.
 
 **Both of you:** get the new checker into your branch before you carry on:
 ```bash

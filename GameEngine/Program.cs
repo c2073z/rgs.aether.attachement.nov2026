@@ -82,7 +82,8 @@ public static class Program
 
             if (isCorrect)
             {
-                Console.WriteLine($"Correct! +{score.GetTimeBonus(level)}s");
+                int bonus = score.GetTimeBonus(level);
+                Console.WriteLine(bonus > 0 ? $"Correct! +{bonus}s" : "Correct!");
             }
             else
             {
