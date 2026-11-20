@@ -392,6 +392,7 @@ button { font-family: inherit; }
 .answer-box:disabled { opacity: 1; }
 .answer-box::-webkit-inner-spin-button, .answer-box::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .answer-box { -moz-appearance: textfield; }
+.send-btn { margin-top: 6px; min-width: 96px; }
 
 /* "Correct!" (green) and "Wrong :(" (red) boxes under the answer */
 .verdict {

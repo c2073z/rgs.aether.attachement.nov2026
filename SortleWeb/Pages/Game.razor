@@ -151,6 +151,12 @@
                                placeholder="Enter Answer..." disabled="@(feedback != null || screen == Screen.Paused)"
                                @bind="answerText" @bind:event="oninput" @onkeydown="AnswerKeyDown" />
 
+                        @if (feedback == null)
+                        {
+                            <button class="btn small pink send-btn" disabled="@(string.IsNullOrWhiteSpace(answerText) || screen == Screen.Paused)"
+                                    @onclick="SubmitAnswer">send</button>
+                        }
+
                         @if (feedback != null)
                         {
                             <div class="verdict @(feedback.IsCorrect ? "good" : "bad")">
