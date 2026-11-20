@@ -1,0 +1,76 @@
+@*
+  The list of numbers, drawn like the Canva frames: soft "blob" bubbles
+  joined by little o—o links. Short lists sit in one straight row;
+  long lists (levels 3-4) zig-zag up and down.
+  Hot = positions to light up (used by the demo).
+*@
+<svg class="chain @(Zigzag ? "zig" : "")" viewBox="0 0 @F(Width) @F(Height)" width="@F(Width)" role="img"
+     aria-label="@string.Join(", ", Numbers)">
+    @for (int i = 0; i + 1 < Numbers.Length; i++)
+    {
+        var (x1, y1) = Centre(i);
+        var (x2, y2) = Centre(i + 1);
+        double dx = x2 - x1, dy = y2 - y1, len = Math.Sqrt(dx * dx + dy * dy);
+        double ux = dx / len, uy = dy / len;
+        double ax = x1 + ux * (R + 5), ay = y1 + uy * (R + 5);
+        double bx = x2 - ux * (R + 5), by = y2 - uy * (R + 5);
+        <line class="link" x1="@F(ax)" y1="@F(ay)" x2="@F(bx)" y2="@F(by)" />
+        <circle class="link-end" cx="@F(ax)" cy="@F(ay)" r="4" />
+        <circle class="link-end" cx="@F(bx)" cy="@F(by)" r="4" />
+    }
+    @for (int i = 0; i < Numbers.Length; i++)
+    {
+        var (x, y) = Centre(i);
+        string text = Numbers[i].ToString();
+        <g class="node @(Hot.Contains(i) ? "hot" : "")">
+            <path class="blob" d="@Blob(x, y, i)" />
+            <text x="@F(x)" y="@F(y)" dy="0.36em" text-anchor="middle"
+                  font-size="@F(text.Length >= 4 ? R * 0.72 : text.Length == 3 ? R * 0.86 : R * 1.05)">@text</text>
+        </g>
+    }
+</svg>
+
+@code {
+    [Parameter] public int[] Numbers { get; set; } = Array.Empty<int>();
+    [Parameter] public bool Zigzag { get; set; }
+    [Parameter] public ICollection<int> Hot { get; set; } = Array.Empty<int>();
+
+    private double R => Zigzag ? 28 : 46;
+    private double Step => Zigzag ? 62 : 132;
+    private double Pad => R + 10;
+    private double Width => Pad * 2 + Step * Math.Max(0, Numbers.Length - 1);
+    private double Height => Zigzag ? R * 2 + 46 + 20 : R * 2 + 24;
+
+    private (double, double) Centre(int i)
+    {
+        double x = Pad + Step * i;
+        double y = Zigzag ? (i % 2 == 0 ? Pad - 2 : Height - Pad + 2) : Height / 2;
+        return (x, y);
+    }
+
+    // A slightly lumpy circle, different for each position (always the same for the same position).
+    private string Blob(double cx, double cy, int seed)
+    {
+        const int n = 8;
+        var pts = new (double X, double Y)[n];
+        for (int k = 0; k < n; k++)
+        {
+            double a = k * Math.PI * 2 / n + seed * 0.7;
+            double r = R * (0.9 + 0.035 * ((seed * 7 + k * 3) % 5));
+            pts[k] = (cx + r * Math.Cos(a), cy + r * Math.Sin(a));
+        }
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"M{F(pts[0].X)},{F(pts[0].Y)}");
+        for (int k = 0; k < n; k++)
+        {
+            var p0 = pts[(k - 1 + n) % n]; var p1 = pts[k]; var p2 = pts[(k + 1) % n]; var p3 = pts[(k + 2) % n];
+            double c1x = p1.X + (p2.X - p0.X) / 6, c1y = p1.Y + (p2.Y - p0.Y) / 6;
+            double c2x = p2.X - (p3.X - p1.X) / 6, c2y = p2.Y - (p3.Y - p1.Y) / 6;
+            sb.Append($" C{F(c1x)},{F(c1y)} {F(c2x)},{F(c2y)} {F(p2.X)},{F(p2.Y)}");
+        }
+        sb.Append(" Z");
+        return sb.ToString();
+    }
+
+    private static string F(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}

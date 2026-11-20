@@ -21,22 +21,35 @@
     {
         case Screen.Credits:
             <section class="card theme-sky credits" @onclick="GoHome">
-                <div class="logo"><LogoLetters /></div>
-                <p><strong>Game Developers:</strong> Cai Yu Han, Cham Si Qing</p>
-                <p><strong>Mentored by:</strong> Ahmad Farhan, Cephas Koh</p>
-                <p>This game was developed during a 1-week work attachment at RSAF RAiD AETHER-SUTD.</p>
-                <p>The core game engine is fully built by the game developers. The game user experience and user design was done by the game developers in Canva.</p>
-                <p>Due to the short time frame, an AI agent was deployed only to convert the front end to HTML and write the script to host C# on HTML.</p>
-                <p class="hint">tap to skip</p>
+                <p class="dev-label">Game Developers:</p>
+                <div class="dev-box">
+                    <span>Cai Yuhan (RGS 409 '26)</span>
+                    <span>Cham Si Qing (RGS 403 '26)</span>
+                </div>
+                <p>This game was developed during a 1-week work attachment at<br />RSAF RAiD AETHER-SUTD</p>
+                <p>The core game engine is fully built by the game developers.<br />The game user experience and user design was done by the game<br />developers in Canva.</p>
+                <div class="ai-note">
+                    <p>Due to the short time frame, an AI Agent was deployed to only</p>
+                    <ol>
+                        <li>Convert the front end to HTML</li>
+                        <li>Write the script to host C# on HTML</li>
+                    </ol>
+                </div>
+                <div class="mentor-strip">
+                    <span class="mentors">Mentored by:<br />Ahmad Farhan<br />Cephas Koh</span>
+                    <img src="img/logo-raid.png" alt="RAiD" width="36" height="16" />
+                    <img src="img/logo-aether.png" alt="AETHER" width="40" height="39" />
+                    <img src="img/logo-raffles.png" alt="Raffles Girls' School" width="34" height="41" />
+                </div>
             </section>
             break;
 
         case Screen.Start:
             <section class="card theme-sky start">
                 <div class="logo huge"><LogoLetters /></div>
-                <p class="tagline">guess the swaps</p>
-                <div class="row">
-                    <button class="btn pink" @onclick="() => screen = Screen.Rules">rules</button>
+                <p class="tagline"><ColorWord Text="guess the swaps" /></p>
+                <div class="row start-buttons">
+                    <button class="btn pink soft" @onclick="() => screen = Screen.Rules">rules</button>
                     <button class="btn pink" @onclick="StartGame">start</button>
                 </div>
             </section>
@@ -44,12 +57,12 @@
 
         case Screen.Rules:
             <section class="card theme-sky rules">
-                <button class="icon-btn corner" title="Back" @onclick="GoHome">✕</button>
-                <div class="logo-box"><span class="logo"><span class="l-r">r</span><span class="l-o">u</span><span class="l-l">l</span><span class="l-t">e</span><span class="l-s">s</span></span></div>
-                <p>You will be given a list of numbers. Your task is to guess how many swaps you need to make between adjacent numbers in order for the numbers to be arranged in increasing order.</p>
-                <p>You start with 1 minute on the clock to pass all four levels, and five tries to pass each level. If your answer is correct, time will be added to your timer. If your answer is wrong, time will be deducted from your timer.</p>
+                <button class="square-btn corner" title="Back to start" @onclick="GoHome">✕</button>
+                <div class="logo-box title-box"><span class="logo"><ColorWord Text="rules" /></span></div>
+                <p>You will be given a list of numbers.<br />Your task is to guess how many swaps you need to make between adjacent numbers in order for the numbers to be arranged in increasing order.</p>
+                <p>You are given a total of 1 minute to pass all four levels, and five tries to pass each level. If your answer is correct, time will be added to your timer. If your answer is wrong, time will be deducted from your timer.</p>
                 <div class="row">
-                    <button class="btn pink" @onclick="() => OpenDemo(null)">demo</button>
+                    <button class="btn pink soft" @onclick="() => OpenDemo(null)">demo</button>
                     <button class="btn pink" @onclick="StartGame">start</button>
                 </div>
             </section>
@@ -60,7 +73,7 @@
                 <header class="top">
                     <span class="tag demo-tag">demo</span>
                     <span class="logo-box"><span class="logo"><LogoLetters /></span></span>
-                    <button class="icon-btn" title="Back" @onclick="CloseDemo">✕</button>
+                    <button class="square-btn" title="Back" @onclick="CloseDemo">✕</button>
                 </header>
 
                 @if (demoError != null)
@@ -70,11 +83,7 @@
                 else
                 {
                     <div class="numbers lilac">
-                        @for (int i = 0; i < DemoList.Length; i++)
-                        {
-                            int index = i;
-                            <span class="bubble @(demoSwapAt >= 0 && (index == demoSwapAt || index == demoSwapAt + 1) ? "hot" : "")">@DemoList[index]</span>
-                        }
+                        <NumberChain Numbers="DemoList" Zigzag="DemoList.Length > 10" Hot="DemoHot" />
                     </div>
 
                     <p class="caption">@DemoCaption</p>
@@ -103,18 +112,15 @@
         case Screen.Paused:
             <section class="card play @($"level-{shownLevel}")">
                 <header class="top">
-                    <span class="tag">Level @shownLevel</span>
+                    <span class="tag"><ColorWord Text="Level" /> <span class="@LevelDigitColour">@shownLevel</span></span>
                     <span class="logo-box"><span class="logo"><LogoLetters /></span></span>
-                    <button class="icon-btn" title="Pause" @onclick="Pause">II</button>
+                    <button class="square-btn" title="Pause" @onclick="Pause"><PauseIcon /></button>
                 </header>
 
-                <p class="question">How many swaps need to be made for the numbers to be arranged from smallest to largest?</p>
+                <p class="question">How many swaps need to be made for the<br class="wide-only" /> numbers to be arranged from smallest to largest?</p>
 
-                <div class="numbers @(puzzle.Length > 10 ? "zigzag" : "")">
-                    @foreach (int n in puzzle)
-                    {
-                        <span class="bubble">@n</span>
-                    }
+                <div class="numbers">
+                    <NumberChain Numbers="puzzle" Zigzag="puzzle.Length > 10" />
                 </div>
 
                 <footer class="bottom">
@@ -126,7 +132,17 @@
                         </div>
                         @if (feedback != null)
                         {
-                            <span class="delta @(feedback.IsCorrect ? "up" : "down")">@(feedback.IsCorrect ? "+" : "-")@feedback.Seconds s</span>
+                            <span class="delta @(feedback.IsCorrect ? "up" : "down")">
+                                @(feedback.IsCorrect ? "+" : "-")@(feedback.Seconds)s
+                                @if (feedback.IsCorrect)
+                                {
+                                    <i class="burst b1"></i><i class="burst b2"></i>
+                                }
+                                else
+                                {
+                                    <i class="thumb">👎</i>
+                                }
+                            </span>
                         }
                     </div>
 
@@ -138,17 +154,18 @@
                         @if (feedback != null)
                         {
                             <div class="verdict @(feedback.IsCorrect ? "good" : "bad")">
-                                <span class="script">Answer is ...</span>
                                 @if (feedback.IsCorrect)
                                 {
-                                    <span class="script big">Correct!</span>
+                                    <span class="verdict-box">Correct!</span>
                                 }
                                 else
                                 {
-                                    <span class="script big">Wrong...</span>
-                                    <span class="was">it was @feedback.CorrectAnswer</span>
-                                    <button class="btn small" @onclick="() => OpenDemo(feedback.Puzzle)">show me how</button>
-                                    <button class="btn small pink" @onclick="NextProblem">next</button>
+                                    <span class="verdict-box">Wrong :(</span>
+                                    <div class="wrong-extras">
+                                        <span class="was">the answer was @feedback.CorrectAnswer</span>
+                                        <button class="btn small" @onclick="() => OpenDemo(feedback.Puzzle)">show me how</button>
+                                        <button class="btn small pink" @onclick="NextProblem">next</button>
+                                    </div>
                                 }
                             </div>
                         }
@@ -161,11 +178,17 @@
 
                 @if (screen == Screen.Paused)
                 {
-                    <div class="overlay theme-lilac">
+                    <div class="overlay theme-lilac paused">
+                        <div class="corner-icons">
+                            <button class="plain-icon" title="Home" @onclick="GoHome"><HomeIcon /></button>
+                            <button class="square-btn" title="Resume" @onclick="Resume"><PauseIcon /></button>
+                        </div>
                         <div class="logo-box"><span class="logo"><LogoLetters /></span></div>
-                        <button class="btn wide" @onclick="StartGame">Restart</button>
-                        <button class="btn wide" @onclick="Resume">Resume</button>
-                        <button class="btn wide" @onclick="GoHome">Home</button>
+                        <h1 class="big-title">game paused</h1>
+                        <div class="col">
+                            <button class="btn blue" @onclick="StartGame">restart</button>
+                            <button class="btn blue" @onclick="Resume">resume</button>
+                        </div>
                     </div>
                 }
             </section>
@@ -173,13 +196,13 @@
 
         case Screen.End:
             <section class="card theme-sky end">
-                <h1>@(score.HasWonGame ? "you win!" : "game over")</h1>
-                <p class="why">@endReason</p>
+                <div class="logo-box"><span class="logo"><LogoLetters /></span></div>
+                <h1 class="big-title" title="@endReason">@(score.HasWonGame ? "you win!" : "game over")</h1>
                 <div class="row">
                     <span class="pill">level reached: @LevelReached</span>
                     <span class="pill">time left: @Math.Ceiling(score.TimeLeft)s</span>
                 </div>
-                <p class="mastery">Mastery: <strong>@mastery</strong></p>
+                <p class="mastery">@mastery</p>
                 <div class="col">
                     <button class="btn pink" @onclick="StartGame">restart</button>
                     <button class="btn pink" @onclick="GoHome">home</button>
@@ -519,6 +542,10 @@
             return $"Swap {demoStep} of {demoSteps.Count}: {before[demoSwapAt]} > {before[demoSwapAt + 1]}, so they swap.{done}";
         }
     }
+
+    private ICollection<int> DemoHot => demoSwapAt >= 0 ? new[] { demoSwapAt, demoSwapAt + 1 } : Array.Empty<int>();
+
+    private string LevelDigitColour => new[] { "c-red", "c-lilac", "c-blue", "c-green" }[Math.Clamp(shownLevel, 1, 4) - 1];
 
     private bool DemoLineIsHot(int line) => demoStep > 0 && (line == 8 || line == 10);
 
