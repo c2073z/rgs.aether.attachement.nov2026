@@ -122,9 +122,9 @@ public class ScoreKeeper
         switch (level)
         {
             case 1: return 3;
-            case 2: return 7;
-            case 3: return 10;
-            case 4: return 15;
+            case 2: return 4;
+            case 3: return 6;
+            case 4: return 8;
             default: return 0;
         }
     }
@@ -133,10 +133,10 @@ public class ScoreKeeper
     {
         switch (level)
         {
-            case 1: return 5;
-            case 2: return 10;
-            case 3: return 15;
-            case 4: return 20;
+            case 1: return 3;
+            case 2: return 5;
+            case 3: return 7;
+            case 4: return 10;
             default: return 0;
         }
     }
@@ -161,11 +161,13 @@ public class ScoreKeeper
     // -----------------------------------------------------------------
     public int GetTimeBonus(int level)
     {
-        if (CurrentLevel < 1 || CurrentLevel > 4)
+        switch (level)
         {
-            return 0;
+            case 1: return 10;
+            case 2: return 20;
+            case 3: return 30;
+            default: return 0;
         }
-        return level * 5;
     }
 
     public int GetTimePenalty(int level)
@@ -264,17 +266,18 @@ public class ScoreKeeper
             if (ProblemsSolvedThisLevel >= ProblemsPerLevel)
             {
                 LevelsCleared++;
-            }
-            if (CurrentLevel == MaxLevel)
-            {
-                HasWonGame = true;
-                IsGameOver = true;
-            }
-            else
-            {
-                CurrentLevel++;
-                ProblemsSolvedThisLevel = 0;
-                WrongThisLevel = 0;
+            
+                if (CurrentLevel == MaxLevel)
+                {
+                    HasWonGame = true;
+                    IsGameOver = true;
+                }
+                else
+                {
+                    CurrentLevel++;
+                    ProblemsSolvedThisLevel = 0;
+                    WrongThisLevel = 0;
+                }
             }
         }
         else
@@ -282,10 +285,6 @@ public class ScoreKeeper
             TotalWrong++;
             WrongThisLevel++;
             Tick(GetTimePenalty(CurrentLevel));
-            if (WrongThisLevel >= MaxWrongPerLevel)
-            {
-                IsGameOver = true;
-            }
         }
     }
 
