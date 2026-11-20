@@ -130,7 +130,7 @@
                             <small>Time Left:</small>
                             <strong>@FormatTime(score.TimeLeft)</strong>
                         </div>
-                        @if (feedback != null)
+                        @if (feedback != null && feedback.Seconds > 0)
                         {
                             <span class="delta @(feedback.IsCorrect ? "up" : "down")">
                                 @(feedback.IsCorrect ? "+" : "-")@(feedback.Seconds)s
