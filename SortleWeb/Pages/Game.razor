@@ -73,12 +73,17 @@
                         @for (int i = 0; i < DemoList.Length; i++)
                         {
                             int index = i;
-                            <span class="bubble @(index == demoSwapAt || index == demoSwapAt + 1 ? "hot" : "")">@DemoList[index]</span>
+                            <span class="bubble @(demoSwapAt >= 0 && (index == demoSwapAt || index == demoSwapAt + 1) ? "hot" : "")">@DemoList[index]</span>
                         }
                     </div>
 
                     <p class="caption">@DemoCaption</p>
 
+                    <div class="row demo-controls">
+                        <button class="btn small demo-btn" disabled="@(demoStep == 0)" @onclick="() => DemoGo(demoStep - 1)">◀ back</button>
+                        <button class="btn small demo-btn" @onclick="ToggleDemoPlay">@(demoPlaying ? "pause" : "play")</button>
+                        <button class="btn small demo-btn" disabled="@(demoStep >= demoSteps.Count)" @onclick="() => DemoGo(demoStep + 1)">next ▶</button>
+                    </div>
                     <div class="terminal">
                         <div class="dots"><i></i><i></i><i></i></div>
                         <div class="code">
@@ -90,11 +95,6 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <button class="btn small" disabled="@(demoStep == 0)" @onclick="() => DemoGo(demoStep - 1)">◀ back</button>
-                        <button class="btn small" @onclick="ToggleDemoPlay">@(demoPlaying ? "pause" : "play")</button>
-                        <button class="btn small" disabled="@(demoStep >= demoSteps.Count)" @onclick="() => DemoGo(demoStep + 1)">next ▶</button>
-                    </div>
                 }
             </section>
             break;
@@ -165,6 +165,7 @@
                         <div class="logo-box"><span class="logo"><LogoLetters /></span></div>
                         <button class="btn wide" @onclick="StartGame">Restart</button>
                         <button class="btn wide" @onclick="Resume">Resume</button>
+                        <button class="btn wide" @onclick="GoHome">Home</button>
                     </div>
                 }
             </section>
