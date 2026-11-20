@@ -2,9 +2,35 @@
 
 **A game that teaches bubble sort.**
 
-The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 1 right to pass a level. The game ends when the clock runs out, so clear all 4 levels before your time runs out.
+## Credits
 
-You write the main logic of the game yourselves, by hand, in C#. The website version (from our Canva design) gets added later and will use the code you write here.
+**Game Developers:**
+- Cai Yuhan (RGS 409 '26)
+- Cham Si Qing (RGS 403 '26)
+
+**Mentored by:** Ahmad Farhan, Cephas Koh
+
+This game was developed during a 1-week work attachment at **RSAF RAiD AETHER-SUTD**.
+
+The core game engine is fully built by the game developers. The game user experience and user design was done by the game developers in Canva.
+
+Due to the short time frame, an AI Agent was deployed to only:
+1. Convert the front end to HTML
+2. Write the script to host C# on HTML
+
+<p>
+  <img src="SortleWeb/wwwroot/img/logo-raid.png" alt="RAiD" height="24" />&nbsp;&nbsp;
+  <img src="SortleWeb/wwwroot/img/logo-aether.png" alt="AETHER" height="40" />&nbsp;&nbsp;
+  <img src="SortleWeb/wwwroot/img/logo-raffles.png" alt="Raffles Girls' School" height="40" />
+</p>
+
+---
+
+## About the game
+
+The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 1 right to pass a level, and get level 4 right to win before the clock runs out.
+
+The main logic of the game was written by hand in C# by the game developers. The website version (in `SortleWeb/`, made from our Canva design) runs that same code in the browser.
 
 ### Rule change (Draft 3)
 
