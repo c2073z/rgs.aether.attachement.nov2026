@@ -2,19 +2,28 @@
 
 **A game that teaches bubble sort.**
 
-The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 1 right to pass a level, but 5 mistakes in one level ends the game. Clear all 4 levels before your time runs out.
+The game shows you a list of random numbers. You guess how many **swaps** bubble sort will make to sort the list from smallest to biggest. Right answers add time to the clock, and wrong answers take time away. Get 1 right to pass a level. The game ends when the clock runs out, so clear all 4 levels before your time runs out.
 
 You write the main logic of the game yourselves, by hand, in C#. The website version (from our Canva design) gets added later and will use the code you write here.
 
-### Rule change: 1 right answer passes a level
+### Rule change (Draft 2)
 
-The team changed the rule from "5 right to pass a level" to **"1 right to pass a level"**. The checker now tests the new rule.
+The team updated the rules. The checker now tests these:
 
-- **Siqing:** change `ProblemsPerLevel` at the top of `ScoreKeeper.cs` from `5` to `1`. Your `SubmitAnswer` should still check `ProblemsSolvedThisLevel >= ProblemsPerLevel` to clear a level. Update the comments in your file to match too.
-- **Both of you:** get the new checker into your branch before you carry on:
-  ```bash
-  git pull origin main
-  ```
+| Level | List length | Correct answer | Wrong answer |
+|---|---|---|---|
+| 1 | 3 | +20 s | -5 s |
+| 2 | 4 - 5 | +20 s | -5 s |
+| 3 | 6 - 7 | +40 s | -7 s |
+| 4 | 8 - 10 | +60 s | -7 s |
+
+- **1 right answer** passes a level.
+- There is **no mistake limit** any more. The game only ends when the clock reaches 0 (or you beat level 4).
+
+**Both of you:** get the new checker into your branch before you carry on:
+```bash
+git pull origin main
+```
 
 ---
 
