@@ -122,6 +122,21 @@ git pull
 
 ---
 
+## The website (SortleWeb/)
+
+The `SortleWeb/` folder is the website version of the game, built from our Canva design. It runs **your** two files from `StudentWork/` in the browser. You don't edit anything in it.
+
+To try it, once both of your files pass the checker:
+```bash
+cd SortleWeb
+```
+```bash
+dotnet run
+```
+Then open the link it prints (for example `http://localhost:5000`). If a step isn't written yet, the website shows an "Almost there!" screen that says which step is missing.
+
+---
+
 ## Tips
 
 - **Work it out on paper first.** Take `[5, 1, 4, 2]` and do bubble sort by hand, counting the swaps. Then write the code.

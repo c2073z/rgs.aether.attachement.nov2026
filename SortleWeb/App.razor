@@ -1,0 +1,11 @@
+@* SORTLE WEBSITE  -  App.razor   (built by the AI agent)
+   Manages pages. Sortle has only one page, the Game page (Pages/Game.razor). *@
+
+<Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" />
+    </Found>
+    <NotFound>
+        <p>Page not found.</p>
+    </NotFound>
+</Router>

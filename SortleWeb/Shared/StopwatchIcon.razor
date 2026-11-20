@@ -1,0 +1,22 @@
+@* The stopwatch from the Canva design. The hand goes round once a minute. *@
+<svg class="stopwatch" viewBox="0 0 100 112" aria-hidden="true">
+    <rect x="40" y="2" width="20" height="10" rx="3" class="sw-top" />
+    <rect x="46" y="10" width="8" height="8" class="sw-top" />
+    <circle cx="50" cy="64" r="44" class="sw-rim" />
+    <circle cx="50" cy="64" r="36" class="sw-face" />
+    @for (int i = 0; i < 12; i++)
+    {
+        double a = i * Math.PI / 6;
+        <line x1="@F(50 + 30 * Math.Sin(a))" y1="@F(64 - 30 * Math.Cos(a))" x2="@F(50 + 34 * Math.Sin(a))" y2="@F(64 - 34 * Math.Cos(a))" class="sw-tick" />
+    }
+    <line x1="50" y1="64" x2="@F(50 + 28 * Math.Sin(Angle))" y2="@F(64 - 28 * Math.Cos(Angle))" class="sw-hand" />
+    <circle cx="50" cy="64" r="4" class="sw-pin" />
+</svg>
+
+@code {
+    [Parameter] public double Seconds { get; set; }
+
+    private double Angle => (Math.Max(0, Seconds) % 60) / 60 * 2 * Math.PI;
+
+    private static string F(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}
